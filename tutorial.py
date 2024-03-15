@@ -11,8 +11,6 @@ from miksi_ai_sdk.agent import create_agent
 from miksi_ai_sdk.agent import run_agent
 
 
-
-
 load_dotenv()
 miksi_api_key = os.getenv("miksi_api_key")
 
@@ -33,15 +31,14 @@ set_database_config(db_name,db_user,db_password,db_host,db_port)
 
 # Initialize python environment 
 initialize_env(env_path)
-install_defaults()
+
 
 
 #Additional installs
-#safe_install_modules(['matplotlib'])
+# The agents default modules are :["matplotlib", "scikit-learn", "numpy", "statsmodels", "pandas", "scipy"]
+#safe_install_modules(['matplotlib']) if you want to install other modules
 
-from miksi_ai_sdk.sqltool import  get_database_schema
-db_info = get_database_schema()
-print(f"db_info: {db_info}")
+
 
 # Creating the agent
 instructions = ''
@@ -49,7 +46,7 @@ agent = create_agent(miksi_api_key=miksi_api_key,media_path= media_path, instruc
 
 
 # Running the agent
-query = "which are top 10 selling cities and show using a graph"
+query = "Forecast our sales and report"
 answer = run_agent(agent, query)
 
 

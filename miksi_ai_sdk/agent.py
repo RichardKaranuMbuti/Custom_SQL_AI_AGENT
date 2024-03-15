@@ -75,7 +75,13 @@ def create_agent(miksi_api_key,media_path,instructions=None):
              create this directory if doesnt exist-  in the current base directory. When you generate
             a graph label it well, and metion you generate a graph and return the path to saved graph in your final
             response.
-            The only allowed file types you can generate are images
+
+            The only allowed file types you can generate are images(so if you generate a table e.g it has to be in image
+            format). The following modules are already installed and you can utilise them for questions that require
+            your creativity: # The agents default modules are :["matplotlib", "scikit-learn", "numpy", "statsmodels", "pandas",
+              "scipy"]. The questions asking for trends/forecasting will need you to reason highly, deal with 
+              errors such as incorrect date formatting since you are an intelligent agent.
+              Try and explain the graphs from what you observe from the plotting data
             "IF THE QUESTION IS VAGUE JUST LOOK AT THE DATA,DECIDE YOURSELF AND COME UP WITH AN ANSWER!
             Strictly Give your final response in json format with the followings keys 1. answer- which is your
             final anwer from your observation, sql_queries.

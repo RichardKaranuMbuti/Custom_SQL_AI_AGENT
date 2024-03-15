@@ -1,9 +1,3 @@
-
-from dotenv import load_dotenv
-import openai
-import json
-import os 
-
 # Local imports
 from miksi_ai_sdk.sqltool import execute_query, get_database_schema
 from miksi_ai_sdk.pythontool import *
@@ -13,7 +7,6 @@ from miksi_ai_sdk.pythontool import *
 def initialize_env(env_path):
     try:
         initialize_environment(env_path)
-        install_defaults()
     except Exception as e:
         print(f"An error occurred during initilization: {e}")
 
