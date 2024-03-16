@@ -26,7 +26,8 @@ jobs:
 
       - name: Build and package
         run: |
-          python setup.py sdist bdist_wheel
+          python setup.py sdist
+          docker run --rm -v $(pwd):/io quay.io/pypa/manylinux2014_x86_64 /io/scripts/build-linux-wheels.sh
 
       - name: Publish to PyPI
         env:
