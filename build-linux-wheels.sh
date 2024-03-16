@@ -16,7 +16,7 @@ for PYBIN in /opt/python/cp3{6,7,8,9,10}*/bin; do
 done
 
 # Bundle the wheel files
-for whl in /io/wheelhouse/*.whl; do
+for whl in $(find /io/wheelhouse -name "*.whl"); do
     auditwheel repair "$whl" --plat manylinux2014_x86_64 -w /io/dist/
 done
 
