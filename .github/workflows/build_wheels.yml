@@ -11,13 +11,24 @@ jobs:
         os: [ubuntu-20.04, windows-2019, macos-11]
 
     steps:
-      - uses: actions/checkout@v4
-      - name: Build wheels
-        uses: pypa/cibuildwheel@v2.16.2
-        env:
-          CIBW_BEFORE_BUILD: python -m pip install Cython
-          only: ${{ matrix.os }}
+      - uses: actions/checkout@v2
 
-      - uses: actions/upload-artifact@v3
+      - name: Set up Python
+        uses: actions/setup-python@v2
         with:
-          path: ./wheelhouse/*.whl
+          python-version: 3.9  # You can adjust the Python version as needed
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install cython
+          pip install langchain sqlalchemy pymysql langchain_openai openai
+
+      - name: Build wheels
+        run: python setup.py sdist bdist_wheel
+
+      - name: Upload wheels artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: wheels
+          path: ./dist/*.whl
