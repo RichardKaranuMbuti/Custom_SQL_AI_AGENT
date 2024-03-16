@@ -24,8 +24,8 @@ extensions = [
 ]
 
 setup(
-    name="miksisdk",
-    version="0.0.8",
+    name="miksi_ai_sdk",
+    version="0.0.1",
     install_requires=[
         "pip", "setuptools", "langchain", "sqlalchemy", "pymysql",
          "langchain", "langchain_openai","openai"
