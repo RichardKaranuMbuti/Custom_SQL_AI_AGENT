@@ -26,15 +26,10 @@ jobs:
       - name: Build wheels
         run: python setup.py bdist_wheel
 
-      - name: Fix platform tag
-        if: runner.os == 'Linux'
-        run: |
-          python -m pip install auditwheel
-          auditwheel repair dist/*.whl
-
       - name: Upload wheels to PyPI
-        uses: pypa/gh-action-pypi-publish@master
+        uses: pypa/gh-action-pypi-publish@unstable/v1
         with:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
-          packages: wheelhouse/*.whl
+          repository_url: https://upload.pypi.org/legacy/
+          packages_dir: dist/
