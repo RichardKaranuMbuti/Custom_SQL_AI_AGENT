@@ -47,6 +47,6 @@ agent = create_agent(miksi_api_key=miksi_api_key,media_path= media_path, instruc
 
 # Running the agent
 query = "Forecast our sales and report"
-answer = run_agent(agent, query)
+answer = run_agent(agent,miksi_api_key, query)
 
 

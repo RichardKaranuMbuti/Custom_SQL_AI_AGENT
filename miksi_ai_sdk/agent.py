@@ -148,7 +148,7 @@ def create_agent(miksi_api_key,media_path,instructions=None):
     
 
 
-def run_agent(agent, query):
+def run_agent(agent,miksi_api_key, query):
     chat_history = []
     input1 = query
     if agent is not None:
