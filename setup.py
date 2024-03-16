@@ -28,7 +28,7 @@ setup(
     version="0.0.1",
     install_requires=[
         "pip", "setuptools", "langchain", "sqlalchemy", "pymysql",
-         "langchain", "langchain_openai","openai"
+         "langchain", "langchain_openai","openai", "Cython"
     ],
     ext_modules=cythonize(extensions, language_level="3")
 )
