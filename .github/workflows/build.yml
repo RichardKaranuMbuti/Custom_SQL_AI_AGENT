@@ -22,12 +22,13 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install wheel setuptools Cython
+          pip install wheel
 
       - name: Build and package
         run: |
           python setup.py sdist
-          docker run --rm -v $(pwd):/io quay.io/pypa/manylinux2014_x86_64 bash -c "pip install wheel setuptools Cython && /io/build-linux-wheels.sh"
+          chmod +x build-linux-wheels.sh
+          docker run --rm -v $(pwd):/io quay.io/pypa/manylinux2014_x86_64 /io/build-linux-wheels.sh
 
       - name: Publish to PyPI
         env:
