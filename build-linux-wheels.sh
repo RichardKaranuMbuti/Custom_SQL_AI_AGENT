@@ -6,8 +6,10 @@ yum install -y python3 python3-pip
 # Install wheel and setuptools
 pip3 install wheel setuptools
 
-# Install Cython
-pip3 install Cython
+# Check if Cython is installed, and if not, install it
+if ! pip3 show Cython &> /dev/null; then
+    pip3 install Cython
+fi
 
 # Build the wheels
 for PYBIN in /opt/python/cp3{6,7,8,9,10}*/bin; do
