@@ -26,7 +26,11 @@ jobs:
 
       - name: Build binary distribution
         run: |
-          pyinstaller --onefile miksi_ai_sdk/*.py  # Include all Python files within miksi_ai_sdk directory
+          pyinstaller --onefile miksi_ai_sdk/*.py  # Compile all Python files within miksi_ai_sdk directory
+
+      - name: Copy distribution to root directory
+        run: |
+          cp -r miksi_ai_sdk/dist/* dist/
 
       - name: Publish to PyPI
         if: success()  # Only publish to PyPI if the build is successful
