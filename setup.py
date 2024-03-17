@@ -30,5 +30,7 @@ setup(
         "pip", "setuptools", "langchain", "sqlalchemy", "pymysql",
          "langchain", "langchain_openai","openai", "Cython"
     ],
+     long_description=open('docs.md').read(),
+    long_description_content_type='text/markdown',
     ext_modules=cythonize(extensions, language_level="3")
 )
