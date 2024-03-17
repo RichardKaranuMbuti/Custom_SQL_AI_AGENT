@@ -11,9 +11,8 @@ done
 
 # Bundle external shared libraries into the wheels
 for whl in wheelhouse/*.whl; do
-    auditwheel repair "$whl" -w /github/workspace/dist/
+    auditwheel repair "$whl" -w /github/workspace/dist/ --plat manylinux2010_x86_64
 done
 
 # Fix permissions of the wheels so the host can clean them up
 chmod -R a+rwX /github/workspace/dist/
-
