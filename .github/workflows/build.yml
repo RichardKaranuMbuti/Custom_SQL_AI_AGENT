@@ -30,6 +30,7 @@ jobs:
 
       - name: Copy distribution to root directory
         run: |
+          mkdir -p dist
           cp -r miksi_ai_sdk/dist/* dist/
 
       - name: Publish to PyPI
