@@ -6,13 +6,13 @@ directory_path = os.path.dirname(os.path.abspath(__file__))
 
 setup(
     name="miksi_ai_sdk",
-    version="0.0.4",
+    version="0.0.5",
     description="Miksi-AI empowers your BI",
     long_description=open(os.path.join(directory_path, 'docs.md')).read(),
     long_description_content_type='text/markdown',
     url="https://github.com/Miksi-io/Custom-Agent",
     author="RichardKaranuMbuti",
-    author_email="your_email@example.com",
+    author_email="officialforrichardk@gmail.com",
     packages=find_packages(),
     install_requires=[
         "langchain", "sqlalchemy", "pymysql",

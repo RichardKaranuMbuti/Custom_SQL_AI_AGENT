@@ -22,15 +22,16 @@ jobs:
         run: |
           pip install -U pip setuptools wheel
           pip install cython
+          pip install pyinstaller  # or replace with cx_Freeze if preferred
 
-      - name: Build and package
+      - name: Build binary distribution
         run: |
-          python setup.py sdist bdist_wheel
+          pyinstaller --onefile miksi_ai_sdk/__init__.py  # Assuming __init__.py is the entry point of your package
 
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
-          distributions: "sdist bdist_wheel"
+          distributions: "dist/*"
           skip_existing: true
