@@ -15,6 +15,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
+      - name: Make build script executable
+        run: chmod +x build_wheels.sh
       
       - name: Set up Docker container
         run: docker info
