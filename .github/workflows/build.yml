@@ -22,22 +22,22 @@ jobs:
         run: |
           pip install -U pip setuptools wheel
           pip install cython
-          pip install pyinstaller  # or replace with cx_Freeze if preferred
+          pip install pyinstaller
 
       - name: Build binary distribution
         run: |
-          mkdir -p miksi_ai_sdk/dist  # Create dist directory if not exist
-          pyinstaller --onefile --distpath miksi_ai_sdk/dist miksi_ai_sdk/*.py  # Compile all Python files within miksi_ai_sdk directory
+          mkdir -p miksi_ai_sdk/dist
+          pyinstaller --onefile --distpath miksi_ai_sdk/dist miksi_ai_sdk/*.py
 
       - name: List files in dist directory
         run: |
           ls -la miksi_ai_sdk/dist
 
       - name: Publish to PyPI
-        if: success()  # Only publish to PyPI if the build is successful
+        if: success()
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
-          password: ${{ secrets.PYPI_API_TOKEN }}
+          password: ${{ secrets.PYPI_API_KEY }}
           distributions: "miksi_ai_sdk/dist/*"
-          skip_existing: true
+          skip-existing: true
