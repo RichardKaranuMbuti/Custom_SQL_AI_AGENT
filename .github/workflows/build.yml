@@ -26,9 +26,10 @@ jobs:
 
       - name: Build binary distribution
         run: |
-          pyinstaller --onefile miksi_ai_sdk/__init__.py  # Assuming __init__.py is the entry point of your package
+          pyinstaller --onefile miksi_ai_sdk/*.py  # Include all Python files within miksi_ai_sdk directory
 
       - name: Publish to PyPI
+        if: success()  # Only publish to PyPI if the build is successful
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
