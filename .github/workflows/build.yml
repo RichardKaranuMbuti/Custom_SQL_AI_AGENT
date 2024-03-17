@@ -21,17 +21,10 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -U pip setuptools wheel
-          pip install cython
-          pip install pyinstaller
 
-      - name: Build binary distribution
+      - name: Build and package
         run: |
-          mkdir -p miksi_ai_sdk/dist
-          pyinstaller --onefile --distpath miksi_ai_sdk/dist miksi_ai_sdk/*.py
-
-      - name: List files in dist directory
-        run: |
-          ls -la miksi_ai_sdk/dist
+          python setup.py sdist bdist_wheel
 
       - name: Publish to PyPI
         if: success()
@@ -39,5 +32,5 @@ jobs:
         with:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
-          distributions: "miksi_ai_sdk/dist/*"
+          distributions: "sdist bdist_wheel"
           skip-existing: true

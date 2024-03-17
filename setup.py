@@ -16,11 +16,10 @@ setup(
     packages=find_packages(),
     install_requires=[
         "langchain", "sqlalchemy", "pymysql",
-        "langchain_openai", "openai", "Cython"
+        "langchain_openai", "openai"
     ],
     python_requires='>=3.6',
 )
-
 
 
 
