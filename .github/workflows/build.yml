@@ -27,7 +27,7 @@ jobs:
       - name: Build binary distribution
         run: |
           mkdir -p miksi_ai_sdk/dist  # Create dist directory if not exist
-          pyinstaller --onefile -o miksi_ai_sdk/dist miksi_ai_sdk/*.py  # Compile all Python files within miksi_ai_sdk directory
+          pyinstaller --onefile --distpath miksi_ai_sdk/dist miksi_ai_sdk/*.py  # Compile all Python files within miksi_ai_sdk directory
 
       - name: List files in dist directory
         run: |
