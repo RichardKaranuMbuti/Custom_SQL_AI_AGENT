@@ -16,21 +16,21 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.8
+          python-version: '3.8'
 
       - name: Install dependencies
         run: |
-          pip install -U pip setuptools wheel
+          pip install -U pip setuptools wheel Cython
+          # Any other dependencies needed specifically for build can be installed here
 
       - name: Build and package
         run: |
           python setup.py sdist bdist_wheel
 
       - name: Publish to PyPI
-        if: success()
-        uses: pypa/gh-action-pypi-publish@release/v1
+        uses: pypa/gh-action-pypi-publish@master
         with:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
           distributions: "sdist bdist_wheel"
-          skip-existing: true
+          skip_existing: true
