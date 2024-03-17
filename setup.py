@@ -10,7 +10,7 @@ miksisdk_path = join(directory_path, 'miksi_ai_sdk')
 
 # Function to get all .py files except __init__.py from miksisdk directory
 def get_py_files(directory):
-    return [f for f in glob.glob(join(directory, '**/*.py'), recursive=True) 
+    return [f for f in glob.glob(join(directory, '**/*.py'), recursive=True)
             if not f.endswith('__init__.py')]
 
 # Get all .py files to be cythonized
@@ -43,6 +43,13 @@ setup(
     python_requires='>=3.6',
     classifiers=[
         # Add all relevant classifiers here
+        'Development Status :: 3 - Alpha',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: MIT License',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
     ],
 )
 
