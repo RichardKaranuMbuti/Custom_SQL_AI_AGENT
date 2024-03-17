@@ -8,29 +8,23 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    services:
+      docker:
+        image: quay.io/pypa/manylinux2010_x86_64:latest
+        options: --user root
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.8'
-
-      - name: Install dependencies
-        run: |
-          pip install -U pip setuptools wheel Cython
-          # Any other dependencies needed specifically for build can be installed here
-
-      - name: Build and package
-        run: |
-          python setup.py sdist bdist_wheel
-
-      - name: Publish to PyPI
+      
+      - name: Set up Docker container
+        run: docker info
+        
+      - name: Build manylinux wheels
+        run: docker run --rm -e PLAT=manylinux2010_x86_64 -v `pwd`:/github/workspace quay.io/pypa/manylinux2010_x86_64 /github/workspace/build_wheels.sh
+        
+      - name: Upload wheels to PyPI
         uses: pypa/gh-action-pypi-publish@master
         with:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
-          distributions: "sdist bdist_wheel"
-          skip_existing: true
+          packages_dir: dist
