@@ -28,11 +28,9 @@ jobs:
         run: |
           pyinstaller --onefile miksi_ai_sdk/*.py  # Compile all Python files within miksi_ai_sdk directory
 
-      - name: Create root dist directory
-        run: mkdir -p dist
-
-      - name: Copy distribution to root directory
-        run: cp -r miksi_ai_sdk/dist/* dist/
+      - name: List files in dist directory
+        run: |
+          ls -la miksi_ai_sdk/dist
 
       - name: Publish to PyPI
         if: success()  # Only publish to PyPI if the build is successful
@@ -40,5 +38,5 @@ jobs:
         with:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
-          distributions: "dist/*"
+          distributions: "miksi_ai_sdk/dist/*"
           skip_existing: true
