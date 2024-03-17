@@ -27,7 +27,7 @@ extensions = [
 
 setup(
     name="miksi_ai_sdk",
-    version="0.0.7",
+    version="0.0.8",
     author="RichardKaranuMbuti",
     author_email="officialforrichardk@gmail.com",
     description="Miksi-AI empowers your BI",
@@ -51,7 +51,7 @@ setup(
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
     ],
-    plat_name='manylinux2010_x86_64',
+    #plat_name='manylinux2010_x86_64',
 )
 
 '''
