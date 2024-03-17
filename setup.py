@@ -1,4 +1,31 @@
 import os
+from setuptools import setup, find_packages
+
+# Directory containing your miksisdk package
+directory_path = os.path.dirname(os.path.abspath(__file__))
+
+setup(
+    name="miksi_ai_sdk",
+    version="0.0.4",
+    description="Miksi-AI empowers your BI",
+    long_description=open(os.path.join(directory_path, 'docs.md')).read(),
+    long_description_content_type='text/markdown',
+    url="https://github.com/Miksi-io/Custom-Agent",
+    author="RichardKaranuMbuti",
+    author_email="your_email@example.com",
+    packages=find_packages(),
+    install_requires=[
+        "langchain", "sqlalchemy", "pymysql",
+        "langchain_openai", "openai", "Cython"
+    ],
+    python_requires='>=3.6',
+)
+
+
+
+
+'''
+import os
 from os.path import join
 from setuptools import setup, Extension
 from Cython.Build import cythonize
@@ -34,3 +61,4 @@ setup(
     long_description_content_type='text/markdown',
     ext_modules=cythonize(extensions, language_level="3")
 )
+'''
