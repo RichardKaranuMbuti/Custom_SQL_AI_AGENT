@@ -71,7 +71,6 @@ jobs:
       - name: Download wheels from Artifact Storage
         uses: actions/download-artifact@v3
         with:
-          name: wheels-${{ needs.build.result }}
           path: ./dist
 
       - name: Install twine
