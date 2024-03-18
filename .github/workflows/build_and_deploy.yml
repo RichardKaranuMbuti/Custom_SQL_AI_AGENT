@@ -1,8 +1,8 @@
 name: Build and Publish Python Package
 
 on:
-  push:
-    
+  release:
+    types: [created]
 
 jobs:
 
@@ -58,9 +58,16 @@ jobs:
       with:
         path: ./dist
 
+    - name: Extract wheels
+      run: |
+        mkdir wheels
+        for artifact in ./dist/*; do
+          cp -r $artifact/dist/*.whl ./wheels/
+        done
+
     - name: Publish to PyPI
       env:
         TWINE_USERNAME: __token__
         TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
       run: |
-        twine upload dist/*
+        twine upload wheels/*
