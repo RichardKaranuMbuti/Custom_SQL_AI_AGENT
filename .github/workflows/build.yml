@@ -6,34 +6,72 @@ on:
       - main
 
 jobs:
-  build:
-    name: Build wheels
+  build_linux:
+    name: Build wheels for Linux
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.6, 3.7, 3.8, 3.9]
-        platform: [linux, macos, windows]
+    services:
+      docker:
+        image: quay.io/pypa/manylinux2010_x86_64:latest
+        options: --user root
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
+      - name: Build wheels
+        run: |
+          docker run --rm -e PLAT=manylinux2010_x86_64 -v `pwd`:/github/workspace ${DOCKER_REGISTRY_HOST}/pypa/manylinux2010_x86_64 /github/workspace/build_wheels.sh
+      - uses: actions/upload-artifact@v2
+        with:
+          name: linux-wheels
+          path: ./dist/*.whl
 
+  build_macos:
+    name: Build wheels for macOS
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: ${{ matrix.python-version }}
-          architecture: x64
-
-      - name: Install build dependencies
-        run: |
-          python -m pip install --upgrade pip wheel setuptools Cython
-
+          python-version: '3.x' # Specify the Python version you wish to use
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip setuptools wheel Cython
       - name: Build wheels
         run: |
-          python setup.py sdist bdist_wheel
+          python setup.py bdist_wheel
+      - uses: actions/upload-artifact@v2
+        with:
+          name: macos-wheels
+          path: ./dist/*.whl
 
-      - name: Upload wheels to PyPI
+  build_windows:
+    name: Build wheels for Windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10' # Specify the Python version you wish to use
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip setuptools wheel Cython
+      - name: Build wheels
+        run: |
+          python setup.py bdist_wheel
+      - uses: actions/upload-artifact@v2
+        with:
+          name: windows-wheels
+          path: ./dist/*.whl
+
+  upload_to_pypi:
+    name: Upload wheels to PyPI
+    needs: [build_linux, build_macos, build_windows]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          path: dist/
+      - uses: actions/setup-python@v2
+      - name: Upload to PyPI
         uses: pypa/gh-action-pypi-publish@master
         with:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
-          packages_dir: dist
