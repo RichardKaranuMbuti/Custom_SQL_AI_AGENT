@@ -9,15 +9,12 @@ jobs:
   build_linux:
     name: Build wheels for Linux
     runs-on: ubuntu-latest
-    services:
-      docker:
-        image: quay.io/pypa/manylinux2010_x86_64:latest
-        options: --user root
     steps:
       - uses: actions/checkout@v2
-      - name: Build wheels
+      - name: Set up permissions and invoke build script
         run: |
-          docker run --rm -e PLAT=manylinux2010_x86_64 -v `pwd`:/github/workspace ${DOCKER_REGISTRY_HOST}/pypa/manylinux2010_x86_64 /github/workspace/build_wheels.sh
+          chmod +x build_wheels.sh
+          docker run --rm -e PLAT=manylinux2010_x86_64 -v ${{ github.workspace }}:/github/workspace quay.io/pypa/manylinux2010_x86_64 /github/workspace/build_wheels.sh
       - uses: actions/upload-artifact@v2
         with:
           name: linux-wheels
