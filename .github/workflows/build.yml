@@ -1,87 +1,46 @@
-name: Build and Upload to PyPI
+name: Build and Publish
 
-on:
-  push:
-    branches:
-      - main
+on: [push, pull_request]
 
 jobs:
-  build_linux:
-    name: Build wheels for Linux
-    runs-on: ubuntu-latest
+  build_wheels:
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-20.04, windows-2019, macos-11]
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up permissions and invoke build script
-        run: |
-          chmod +x build_wheels.sh
-          docker run --rm -e PLAT=manylinux2010_x86_64 -v ${{ github.workspace }}:/github/workspace quay.io/pypa/manylinux2010_x86_64 /github/workspace/build_wheels.sh
-      - uses: actions/upload-artifact@v2
-        with:
-          name: linux-wheels
-          path: ./dist/*.whl
-
-  build_macos:
-    name: Build wheels for macOS
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: '3.10' # Specify the Python version you wish to use
-      - name: Install dependencies
-        run: python -m pip install --upgrade pip setuptools wheel Cython
+          python-version: '3.x' # Feel free to specify a more precise version.
       - name: Build wheels
-        run: |
-          python setup.py bdist_wheel
-      - uses: actions/upload-artifact@v2
+        uses: pypa/cibuildwheel@v2.16.2
+        env:
+          CIBW_BEFORE_BUILD: python -m pip install Cython
+      - uses: actions/upload-artifact@v3
         with:
-          name: macos-wheels
-          path: ./dist/*.whl
-
-  build_windows:
-    name: Build wheels for Windows
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.10' # Specify the Python version you wish to use
-      - name: Install dependencies
-        run: python -m pip install --upgrade pip setuptools wheel Cython
-      - name: Build wheels
-        run: |
-          python setup.py bdist_wheel
-      - uses: actions/upload-artifact@v2
-        with:
-          name: windows-wheels
-          path: ./dist/*.whl
+          path: ./wheelhouse/*.whl
 
   upload_to_pypi:
-    name: Upload wheels to PyPI
-    needs: [build_linux, build_macos, build_windows]
+    needs: build_wheels
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v3
+        with:
+          path: dist
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: '3.10' # Replace '3.x' with the specific version if needed.
-      
-      # Download and consolidate artifacts from previous jobs
-      - name: Download all artifacts
-        uses: actions/download-artifact@v2
-        with:
-          path: dist/
-      
-      - name: List contents of the dist directory
-        run: ls dist/
-      
-      - name: Upload to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          user: __token__
-          password: ${{ secrets.PYPI_API_TOKEN }}
-          packages_dir: dist
-        
+          python-version: '3.x' # Match this version with the one used for building wheels.
+      - name: Install twine
+        run: python -m pip install twine
+      - name: Publish to PyPI
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+        run: |
+          twine check dist/*
+          twine upload dist/*
