@@ -35,23 +35,21 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           pip install auditwheel
+          mkdir -p wheelhouse
           for whl in ./dist/*.whl; do
-            auditwheel repair $whl --plat manylinux2014_x86_64 -w dist/
+            auditwheel repair $whl --plat manylinux2014_x86_64 -w wheelhouse/
           done
 
-      - name: Rename wheel for universal platform (if applicable)
-        if: runner.os == 'Linux'
+      - name: Prepare wheels for upload
         run: |
-          # Example renaming command, adjust as needed for your package
-          # This is a placeholder step; use only if you know your package should be tagged as universal
-          for whl in ./dist/*manylinux2014_x86_64.whl; do
-            mv "$whl" "${whl/manylinux2014_x86_64/any}"
-          done
+          if [ "${{ runner.os }}" == "Linux" ]; then
+            mv wheelhouse/* dist/
+          fi
 
-      - name: Upload wheels
+      - name: Upload wheels to Artifact Storage
         uses: actions/upload-artifact@v3
         with:
-          name: dist-${{ matrix.os }}
+          name: wheels-${{ matrix.os }}
           path: ./dist/*.whl
 
   deploy:
@@ -65,24 +63,20 @@ jobs:
         with:
           python-version: '3.x'
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install setuptools wheel twine
-
-      - name: Download wheels
+      - name: Download wheels from Artifact Storage
         uses: actions/download-artifact@v3
         with:
+          name: wheels-${{ needs.build.result }}
           path: ./dist
 
-      - name: Extract wheels
+      - name: Install twine
         run: |
-          mkdir -p wheels
-          find ./dist -name '*.whl' -exec cp {} wheels/ \;
+          python -m pip install --upgrade pip
+          pip install twine
 
       - name: Publish to PyPI
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
         run: |
-          twine upload wheels/*
+          twine upload dist/*
