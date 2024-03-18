@@ -1,4 +1,5 @@
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages, Extension
+from Cython.Build import cythonize
 import os
 from os.path import join
 import glob
@@ -7,13 +8,18 @@ import glob
 directory_path = os.path.dirname(os.path.abspath(__file__))
 miksisdk_path = join(directory_path, 'miksi_ai_sdk')
 
-# Function to get all .py files except __init__.py from miksisdk directory
-def get_py_files(directory):
-    return [f for f in glob.glob(join(directory, '**/*.py'), recursive=True)
-            if not f.endswith('__init__.py')]
+# Function to get all .pyx files from miksisdk directory
+def get_pyx_files(directory):
+    return [f for f in glob.glob(join(directory, '**/*.pyx'), recursive=True)]
 
-# Get all .py files
-miksisdk_files = get_py_files(miksisdk_path)
+# Get all .pyx files
+miksisdk_files = get_pyx_files(miksisdk_path)
+
+# Create Cython extensions for each .pyx file
+extensions = [
+    Extension(os.path.splitext(os.path.relpath(f, directory_path))[0].replace(os.path.sep, '.'), [f])
+    for f in miksisdk_files
+]
 
 setup(
     name="miksi_ai_sdk",
@@ -25,7 +31,7 @@ setup(
     long_description_content_type='text/markdown',
     url="https://github.com/Miksi-io/Custom-Agent",
     packages=find_packages(include=["miksi_ai_sdk", "miksi_ai_sdk.*"]),
-    py_modules=["miksi_ai_sdk." + os.path.splitext(os.path.basename(f))[0] for f in miksisdk_files],
+    ext_modules=cythonize(extensions, build_dir="build"),
     install_requires=[
         "langchain", "sqlalchemy", "pymysql",
         "langchain_openai", "openai"
@@ -35,7 +41,6 @@ setup(
         # Add your classifiers here
     ],
 )
-
 '''
 import os
 from os.path import join
