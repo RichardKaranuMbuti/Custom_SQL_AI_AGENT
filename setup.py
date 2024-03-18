@@ -51,7 +51,6 @@ setup(
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
     ],
-    #plat_name='manylinux2010_x86_64',
 )
 
 '''
