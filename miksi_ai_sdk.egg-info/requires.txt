@@ -1,0 +1,5 @@
+langchain
+sqlalchemy
+pymysql
+langchain_openai
+openai
