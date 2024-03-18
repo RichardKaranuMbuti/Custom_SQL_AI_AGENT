@@ -6,77 +6,34 @@ on:
       - main
 
 jobs:
-
-  build-linux:
+  build:
+    name: Build wheels
     runs-on: ubuntu-latest
-    
+    strategy:
+      matrix:
+        python-version: [3.6, 3.7, 3.8, 3.9]
+        platform: [linux, macos, windows]
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-      
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.8
-        
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip setuptools wheel Cython
-        python -m pip install twine
-        
-    - name: Build Linux wheels
-      run: python setup.py bdist_wheel --plat-name manylinux2010_x86_64
-      
-    - name: Upload Linux wheels to PyPI
-      env:
-        TWINE_USERNAME: __token__
-        TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
-      run: python -m twine upload --non-interactive --skip-existing dist/*
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-  build-windows:
-    runs-on: windows-latest
-    
-    steps:
-    - uses: actions/checkout@v2
-    
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.8
-    
-    - name: Build Windows wheels
-      run: |
-        python -m pip install --upgrade pip setuptools wheel Cython
-        python setup.py bdist_wheel
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: x64
 
-    - name: Upload Windows wheels to PyPI
-      env:
-        TWINE_USERNAME: __token__
-        TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
-      run: |
-        python -m pip install twine
-        python -m twine upload --non-interactive --skip-existing dist/*
+      - name: Install build dependencies
+        run: |
+          python -m pip install --upgrade pip wheel setuptools Cython
 
-  build-macos:
-    runs-on: macos-latest
-    
-    steps:
-    - uses: actions/checkout@v2
-    
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.8
-    
-    - name: Build macOS wheels
-      run: |
-        python -m pip install --upgrade pip setuptools wheel Cython
-        python setup.py bdist_wheel
-    
-    - name: Upload macOS wheels to PyPI
-      env:
-        TWINE_USERNAME: __token__
-        TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
-      run: |
-        python -m pip install twine
-        python -m twine upload --non-interactive --skip-existing dist/*
+      - name: Build wheels
+        run: |
+          python setup.py sdist bdist_wheel
+
+      - name: Upload wheels to PyPI
+        uses: pypa/gh-action-pypi-publish@master
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}
+          packages_dir: dist
