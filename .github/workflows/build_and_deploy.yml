@@ -22,14 +22,17 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install setuptools wheel cython
+        shell: bash
 
       - name: Compile Cython modules
         run: |
           python setup.py build_ext --inplace
+        shell: bash
 
       - name: Build wheels
         run: |
           python setup.py bdist_wheel
+        shell: bash
 
       - name: Repair wheels (Linux only)
         if: runner.os == 'Linux'
@@ -39,12 +42,14 @@ jobs:
           for whl in ./dist/*.whl; do
             auditwheel repair $whl --plat manylinux2014_x86_64 -w wheelhouse/
           done
+        shell: bash
 
       - name: Prepare wheels for upload
         run: |
           if [ "${{ runner.os }}" == "Linux" ]; then
             mv wheelhouse/* dist/
           fi
+        shell: bash
 
       - name: Upload wheels to Artifact Storage
         uses: actions/upload-artifact@v3
