@@ -1,8 +1,0 @@
-README.md
-setup.py
-miksi_ai_sdk/__init__.py
-miksi_ai_sdk.egg-info/PKG-INFO
-miksi_ai_sdk.egg-info/SOURCES.txt
-miksi_ai_sdk.egg-info/dependency_links.txt
-miksi_ai_sdk.egg-info/requires.txt
-miksi_ai_sdk.egg-info/top_level.txt
