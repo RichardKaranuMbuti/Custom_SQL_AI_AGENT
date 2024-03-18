@@ -2,7 +2,6 @@ name: Build and Publish Python Package
 
 on:
   push:
-    
 
 jobs:
 
@@ -19,7 +18,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.10'
+        python-version: '3.x'
 
     - name: Install dependencies
       run: |
@@ -46,7 +45,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.10'
+        python-version: '3.x'
 
     - name: Install dependencies
       run: |
@@ -62,7 +61,9 @@ jobs:
       run: |
         mkdir wheels
         for artifact in ./dist/*; do
-          cp -r $artifact/dist/*.whl ./wheels/
+          for wheel in $artifact/*/*.whl; do
+            cp $wheel ./wheels/
+          done
         done
 
     - name: Publish to PyPI
