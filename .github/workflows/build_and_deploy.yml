@@ -71,7 +71,16 @@ jobs:
       - name: Download wheels from Artifact Storage
         uses: actions/download-artifact@v3
         with:
-          path: ./dist
+          path: ./artifacts
+
+      - name: Unpack Artifacts
+        run: |
+          mkdir -p dist
+          find ./artifacts -name '*.zip' -exec unzip -o {} -d ./dist \;
+
+      - name: List contents of dist
+        run: |
+          ls -lah dist
 
       - name: Install twine
         run: |
@@ -83,4 +92,4 @@ jobs:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
         run: |
-          twine upload dist/*
+          twine upload dist/*.whl
