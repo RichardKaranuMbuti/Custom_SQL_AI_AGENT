@@ -22,7 +22,7 @@ extensions = [
 
 setup(
     name="miksi_ai_sdk",
-    version="0.0.12",
+    version="0.0.13",
     author="RichardKaranuMbuti",
     author_email="officialforrichardk@gmail.com",
     description="Miksi-AI empowers your BI",
