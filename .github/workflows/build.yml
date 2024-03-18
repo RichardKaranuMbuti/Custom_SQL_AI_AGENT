@@ -3,8 +3,8 @@ name: Build and Publish to PyPI
 on:
   push:
     branches: 
-      - main  # Assuming your main branch is called 'main'; change it to 'master' if your main branch has a different name.
-  pull_request:  # This will run on pull requests for testing, but won't publish to PyPI.
+      - main  # Ensure this matches your main development branch's name.
+  pull_request:  # This lets you build on PRs without publishing.
 
 jobs:
   build_wheels:
@@ -12,24 +12,24 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-20.04, windows-2019, macos-11]
+        os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
     - uses: actions/checkout@v4
 
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.9' # Use the Python version relevant to your project.
+        python-version: '3.9'  # Adjust the Python version as needed.
 
-    - name: Install dependencies
+    - name: Install Dependencies
       run: |
         python -m pip install --upgrade pip
         pip install Cython setuptools wheel
 
-    - name: Build wheels
+    - name: Build Wheels with cibuildwheel
       uses: pypa/cibuildwheel@v2.16.2
-      env:
-        CIBW_BEFORE_BUILD: "pip install Cython"
+      with:
+        output-dir: 'wheelhouse'
 
     - uses: actions/upload-artifact@v3
       with:
@@ -37,12 +37,11 @@ jobs:
 
   publish:
     needs: build_wheels
-    runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/download-artifact@v3
       with:
-        name: artifact
         path: dist
 
     - name: Publish package to PyPI
