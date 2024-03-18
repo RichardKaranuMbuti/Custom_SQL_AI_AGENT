@@ -11,7 +11,7 @@ miksisdk_path = os.path.join(directory_path, 'miksi_ai_sdk')
 def get_pyx_files(directory):
     return [f for f in glob.glob(os.path.join(directory, '**/*.pyx'), recursive=True)]
 
-# Get all .pyx files
+# Get all .pyx files ------
 miksisdk_files = get_pyx_files(miksisdk_path)
 
 # Create Cython extensions for each .pyx file
