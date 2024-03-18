@@ -8,6 +8,7 @@ jobs:
     name: Build wheels on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
@@ -45,10 +46,9 @@ jobs:
         shell: bash
 
       - name: Prepare wheels for upload
+        if: runner.os == 'Linux'
         run: |
-          if [ "${{ runner.os }}" == "Linux" ]; then
-            mv wheelhouse/* dist/
-          fi
+          mv wheelhouse/* dist/
         shell: bash
 
       - name: Upload wheels to Artifact Storage
@@ -79,18 +79,22 @@ jobs:
           find ./artifacts -name '*.zip' -exec unzip -o {} -d ./ \;
           find . -name '*.whl' -exec mv {} dist/ \;
 
-      - name: List contents of dist
+      - name: Verify Wheels (Ensure Correct Tagging)
         run: |
-          ls -lah dist
+          if ls dist/*linux_x86_64.whl 1> /dev/null 2>&1; then
+            echo "Found incorrectly tagged wheel files. These need to be repaired or tagged correctly before upload."
+            exit 1
+          fi
+          echo "All wheel files are correctly tagged for upload."
 
       - name: Install twine
         run: |
           python -m pip install --upgrade pip
           pip install twine
 
-      - name: Publish to PyPI
+      - name: Publish to PyPI with Verbose Output
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
         run: |
-          twine upload dist/*.whl
+          twine upload --verbose dist/*.whl
