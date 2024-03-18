@@ -27,13 +27,12 @@ jobs:
         pip install Cython setuptools wheel
 
     - name: Build Wheels with cibuildwheel
-      uses: pypa/cibuildwheel@v2.16.2
-      with:
-        output-dir: 'wheelhouse'
+    uses: pypa/cibuildwheel@v2.16.2
+    with:
+      output-dir: 'wheelhouse'
+    env:
+      CIBW_BEFORE_BUILD: 'pip install Cython && pip install .[tests]
 
-    - uses: actions/upload-artifact@v3
-      with:
-        path: ./wheelhouse/*.whl
 
   publish:
     needs: build_wheels
