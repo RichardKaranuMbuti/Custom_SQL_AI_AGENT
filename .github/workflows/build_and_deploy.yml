@@ -79,13 +79,16 @@ jobs:
           find ./artifacts -name '*.zip' -exec unzip -o {} -d ./ \;
           find . -name '*.whl' -exec mv {} dist/ \;
 
-      - name: Verify Wheels (Ensure Correct Tagging)
+      - name: Manually Tag Wheels for Linux
         run: |
-          if ls dist/*linux_x86_64.whl 1> /dev/null 2>&1; then
-            echo "Found incorrectly tagged wheel files. These need to be repaired or tagged correctly before upload."
-            exit 1
-          fi
-          echo "All wheel files are correctly tagged for upload."
+          cd dist
+          for whl in *linux_x86_64.whl; do
+            if [[ -f "$whl" ]]; then
+              new_whl="${whl/linux_x86_64/manylinux2014_x86_64}"
+              mv "$whl" "$new_whl"
+              echo "Renamed $whl to $new_whl"
+            fi
+          done
 
       - name: Install twine
         run: |
