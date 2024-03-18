@@ -17,7 +17,7 @@ miksisdk_files = get_py_files(miksisdk_path)
 
 setup(
     name="miksi_ai_sdk",
-    version="0.0.8",
+    version="0.0.9",
     author="RichardKaranuMbuti",
     author_email="officialforrichardk@gmail.com",
     description="Miksi-AI empowers your BI",
