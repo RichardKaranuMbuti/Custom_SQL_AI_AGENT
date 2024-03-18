@@ -25,7 +25,7 @@ setup(
     long_description_content_type='text/markdown',
     url="https://github.com/Miksi-io/Custom-Agent",
     packages=find_packages(include=["miksi_ai_sdk", "miksi_ai_sdk.*"]),
-    #py_modules=["miksi_ai_sdk." + os.path.splitext(os.path.basename(f))[0] for f in miksisdk_files],
+    py_modules=["miksi_ai_sdk." + os.path.splitext(os.path.basename(f))[0] for f in miksisdk_files],
     install_requires=[
         "langchain", "sqlalchemy", "pymysql",
         "langchain_openai", "openai"

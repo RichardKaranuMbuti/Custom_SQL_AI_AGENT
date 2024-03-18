@@ -1,7 +1,0 @@
-# .cibuildwheel/config.cython
-
-# Python versions to build wheels for
-python = 3.6 3.7 3.8 3.9 3.10 
-
-# Platforms to build wheels for
-platform = linux macos windows
