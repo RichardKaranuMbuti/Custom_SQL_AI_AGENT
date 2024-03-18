@@ -73,10 +73,11 @@ jobs:
         with:
           path: ./artifacts
 
-      - name: Unpack Artifacts
+      - name: Unpack Artifacts and Move to Dist
         run: |
           mkdir -p dist
-          find ./artifacts -name '*.zip' -exec unzip -o {} -d ./dist \;
+          find ./artifacts -name '*.zip' -exec unzip -o {} -d ./ \;
+          find . -name '*.whl' -exec mv {} dist/ \;
 
       - name: List contents of dist
         run: |
