@@ -57,6 +57,7 @@ jobs:
         shell: bash
 
       - name: Manually Tag Wheels for Linux
+        if: runner.os != 'Windows'
         run: |
           cd dist
           for whl in *linux_x86_64.whl; do
@@ -66,6 +67,7 @@ jobs:
               echo "Renamed $whl to $new_whl"
             fi
           done
+        shell: bash
 
       - name: Upload wheels to Artifact Storage
         uses: actions/upload-artifact@v3
