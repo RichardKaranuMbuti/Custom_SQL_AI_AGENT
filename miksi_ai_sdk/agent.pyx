@@ -7,7 +7,9 @@ from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.agents.format_scratchpad.openai_tools import format_to_openai_tool_messages
 from langchain.agents.output_parsers.openai_tools import OpenAIToolsAgentOutputParser
 from langchain_core.messages import AIMessage, HumanMessage
-
+import requests
+import json
+import concurrent.futures
 # Local imports
 from miksi_ai_sdk.sqltool import execute_query, get_database_schema
 from miksi_ai_sdk.pythontool import *
@@ -148,14 +150,33 @@ def create_agent(miksi_api_key,media_path,instructions=None):
     
 
 
+def send_user_question_async(miksi_api_key, query):
+    main_url = 'http://127.0.0.1:8000'
+    data = {'user_api_key': miksi_api_key, 'human_query': query}
+    headers = {'Content-Type': 'application/json'}
+    try:
+        response = requests.post(f'{main_url}/miksi/user-questions/', data=json.dumps(data), headers=headers)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"An error occurred during the API request: {e}")
+        return None
+
 def run_agent(agent,miksi_api_key, query):
     chat_history = []
     input1 = query
     if agent is not None:
         try:
-            result1 = agent.invoke({"input": input1, "chat_history": chat_history})
-            chat_history.extend([HumanMessage(content=input1), AIMessage(content=result1["output"])])
-            print("answer: " ,result1["output"])
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                future = executor.submit(send_user_question_async, miksi_api_key, query)
+                result1 = agent.invoke({"input": input1, "chat_history": chat_history})
+                chat_history.extend([HumanMessage(content=input1), AIMessage(content=result1["output"])])
+                print("answer: " ,result1["output"])
+                response = future.result()  # Wait for the API call to complete
+                if response:
+                    print("User question sent successfully.")
+                else:
+                    print("Failed to send user question.")
         except Exception as e:
             print(f"An Error occurred when running the agent: {e}")
     else:
