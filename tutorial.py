@@ -46,7 +46,6 @@ agent = create_agent(miksi_api_key=miksi_api_key,media_path= media_path, instruc
 
 
 # Running the agent
-query = "Forecast our sales and report"
+query = "what 5 trends can you identify in the data"
 answer = run_agent(agent,miksi_api_key, query)
-
 

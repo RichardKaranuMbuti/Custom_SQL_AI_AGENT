@@ -21,7 +21,7 @@ extensions = [
 ]
 
 setup(
-    name="miksi_ai_sdk",
+    name="miksi-ai-sdk",
     version="0.0.13",
     author="RichardKaranuMbuti",
     author_email="officialforrichardk@gmail.com",

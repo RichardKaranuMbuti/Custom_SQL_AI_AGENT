@@ -12,6 +12,9 @@ The generated graphs/charts by default are saved in a directory called `media` a
 
 - Install the latest version: `pip install miksi_ai_sdk`
 
+The supported python versions are 
+['3.7', '3.8', '3.9', '3.10', '3.11','3.12']
+
 ## Connecting to the Database
 
 Miksi abstracts connecting to your SQL database into "you just provide credentials" and the rest is handled.

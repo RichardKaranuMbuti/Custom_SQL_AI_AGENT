@@ -7,15 +7,40 @@ from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.agents.format_scratchpad.openai_tools import format_to_openai_tool_messages
 from langchain.agents.output_parsers.openai_tools import OpenAIToolsAgentOutputParser
 from langchain_core.messages import AIMessage, HumanMessage
+import os
+
 import requests
 import json
-import concurrent.futures
+
+from langchain_openai import AzureOpenAI
+from langchain_openai import AzureChatOpenAI
+
+from langchain.agents.agent import RunnableAgent
+
+from langchain.callbacks import get_openai_callback
+
 # Local imports
 from miksi_ai_sdk.sqltool import execute_query, get_database_schema
 from miksi_ai_sdk.pythontool import *
 from miksi_ai_sdk.api import MiksiAPIHandler
 
+
+
+from dotenv import load_dotenv
+load_dotenv()
+
 #db_info = get_database_schema()
+
+class CustomRunnableAgent(RunnableAgent):
+    def plan(
+        self,
+        intermediate_steps,
+        callbacks,
+        **kwargs
+    ):
+        inputs = {**kwargs, **{"intermediate_steps": intermediate_steps}}
+        output = self.runnable.invoke(inputs, config={"callbacks": callbacks})
+        return output
 
 def create_agent(miksi_api_key,media_path,instructions=None):
     
@@ -52,8 +77,21 @@ def create_agent(miksi_api_key,media_path,instructions=None):
 
     tools = [get_database_schema_tool, execute_sql_query_tool,execute_python_code_tool]
 
+
+    AZURE_OPENAI_ENDPOINT= os.getenv("azure_endpoint")
+    AZURE_OPENAI_API_KEY= os.getenv("AZURE_OPENAI_KEY")
+    OPENAI_API_VERSION = os.getenv("api_version")
+
     # Load the language model
     llm = ChatOpenAI(model="gpt-4-0125-preview", temperature=1.0)
+    '''
+    llm = AzureChatOpenAI(deployment_name="miksi-gpt-35",
+                      azure_endpoint="https://miksi.openai.azure.com/",# AZURE_OPENAI_ENDPOINT,
+                      api_key= AZURE_OPENAI_API_KEY,
+                      api_version="2024-02-15-preview",#OPENAI_API_VERSION,
+                      model_name="gpt-35-turbo-16k", temperature=1)
+    '''
+    
 
     # Define prompt template with memory placeholders
     MEMORY_KEY = "chat_history"
@@ -141,7 +179,8 @@ def create_agent(miksi_api_key,media_path,instructions=None):
             )
 
             # Initialize the AgentExecutor with the agent and tools
-            agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True,handle_parsing_errors=True)
+            agent_executor = AgentExecutor(agent=CustomRunnableAgent(runnable = agent), tools=tools, verbose=True,
+                                           handle_parsing_errors=True,stream_runnable=False)
             print("Agent is Ready!")
             return agent_executor
         except Exception as e:
@@ -162,23 +201,20 @@ def send_user_question_async(miksi_api_key, query):
         print(f"An error occurred during the API request: {e}")
         return None
 
-def run_agent(agent,miksi_api_key, query):
+
+
+def run_agent(agent, miksi_api_key, query):
     chat_history = []
     input1 = query
     if agent is not None:
-        try:
-            with concurrent.futures.ThreadPoolExecutor() as executor:
-                future = executor.submit(send_user_question_async, miksi_api_key, query)
+        with get_openai_callback() as cb:
+            try:
                 result1 = agent.invoke({"input": input1, "chat_history": chat_history})
                 chat_history.extend([HumanMessage(content=input1), AIMessage(content=result1["output"])])
-                print("answer: " ,result1["output"])
-                response = future.result()  # Wait for the API call to complete
-                if response:
-                    print("User question sent successfully.")
-                else:
-                    print("Failed to send user question.")
-        except Exception as e:
-            print(f"An Error occurred when running the agent: {e}")
-    else:
-        print(f"Agent instance not Established")
+                print("answer: ", result1["output"])
+                # Print the cost and usage information
+                print(f"Cost: {cb}")
+            
+            except Exception as e:
+                print(f"An Error occurred when running the agent: {e}")
 
