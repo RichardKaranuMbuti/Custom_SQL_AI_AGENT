@@ -11,13 +11,16 @@ import os
 
 import requests
 import json
+import aiohttp
+import asyncio
 
 from langchain_openai import AzureOpenAI
 from langchain_openai import AzureChatOpenAI
 
 from langchain.agents.agent import RunnableAgent
 
-from langchain.callbacks import get_openai_callback
+#from langchain.callbacks import get_openai_callback
+from langchain_community.callbacks import get_openai_callback
 
 # Local imports
 from miksi_ai_sdk.sqltool import execute_query, get_database_schema
@@ -41,6 +44,26 @@ class CustomRunnableAgent(RunnableAgent):
         inputs = {**kwargs, **{"intermediate_steps": intermediate_steps}}
         output = self.runnable.invoke(inputs, config={"callbacks": callbacks})
         return output
+    
+
+def create_chat_openai_instance(miksi_api_key):
+    api_handler = MiksiAPIHandler(miksi_api_key=miksi_api_key)
+    status = api_handler.validate_miksi_api_key()
+    if not status:
+        print("API key validation failed.")
+        return None
+    data = api_handler.get_openai_data()
+    # Fetch the data or use default values
+    model_name = data.get('model_name')  
+    temperature = data.get('temperature', 1)  
+    api_key = data.get('api_key') 
+    
+    # Create the ChatOpenAI instance
+    llm = ChatOpenAI(openai_api_key=api_key, model=model_name, temperature=temperature)
+    print(f"Created ChatOpenAI instance with data: {data}")
+    return llm
+
+
 
 def create_agent(miksi_api_key,media_path,instructions=None):
     
@@ -83,7 +106,8 @@ def create_agent(miksi_api_key,media_path,instructions=None):
     OPENAI_API_VERSION = os.getenv("api_version")
 
     # Load the language model
-    llm = ChatOpenAI(model="gpt-4-0125-preview", temperature=1.0)
+    #llm = ChatOpenAI(model="gpt-4-0125-preview", temperature=1.0)
+    llm = create_chat_openai_instance(miksi_api_key)
     '''
     llm = AzureChatOpenAI(deployment_name="miksi-gpt-35",
                       azure_endpoint="https://miksi.openai.azure.com/",# AZURE_OPENAI_ENDPOINT,
@@ -164,7 +188,7 @@ def create_agent(miksi_api_key,media_path,instructions=None):
         validation=response['status']
     except Exception as e:
         print(f"An error occured while attempting to valid your Miksi API key: {e}")
-    if validation:
+    if validation==True:
         try:
             # Create the agent
             agent = (
@@ -186,35 +210,57 @@ def create_agent(miksi_api_key,media_path,instructions=None):
         except Exception as e:
             print(f"An error occurred while creating the agent: {e}")
             return None
+    else:
+        print("Problem creating the agent!Please check your API key")
+        
     
 
 
-def send_user_question_async(miksi_api_key, query):
-    main_url = 'http://127.0.0.1:8000'
-    data = {'user_api_key': miksi_api_key, 'human_query': query}
+#https://miksiapi-miksi.pythonanywhere.com' / http://127.0.0.1:8000
+
+import httpx
+
+def send_user_question(miksi_api_key, query, tokens, total_cost):
+    main_url = 'https://miksiapi-miksi.pythonanywhere.com'  # Adjust as necessary
+    endpoint = f"{main_url}/miksi/user_questions/"  # Updated endpoint path
+    # Updated data keys to match your Django endpoint's expected input
+    data = {'miksi_api_key': miksi_api_key, 'query': query, 'tokens': tokens, 'total_cost': total_cost}
     headers = {'Content-Type': 'application/json'}
-    try:
-        response = requests.post(f'{main_url}/miksi/user-questions/', data=json.dumps(data), headers=headers)
-        response.raise_for_status()
-        return response.json()
-    except requests.exceptions.RequestException as e:
-        print(f"An error occurred during the API request: {e}")
-        return None
+
+    with httpx.Client() as client:
+        try:
+            response = client.post(endpoint, json=data, headers=headers)
+            # Checking the response status code for success or failure
+            if response.status_code == 201:
+                print("Success at:Miksi1!.")
+                return response.json()  # or process response as needed
+            else:
+                print(f"Failed at:Miksi0! : ") #paste this to see actual error({response.status_code}, Error: {response.text})
+                return None
+        except httpx.HTTPError as e:
+            print(f"An error occurred during the API request: {e}")
+            return None
 
 
 
 def run_agent(agent, miksi_api_key, query):
     chat_history = []
     input1 = query
+    tokens = None
+    total_cost = None
+
     if agent is not None:
         with get_openai_callback() as cb:
             try:
                 result1 = agent.invoke({"input": input1, "chat_history": chat_history})
                 chat_history.extend([HumanMessage(content=input1), AIMessage(content=result1["output"])])
                 print("answer: ", result1["output"])
-                # Print the cost and usage information
-                print(f"Cost: {cb}")
-            
+                tokens = cb.total_tokens
+                total_cost = cb.total_cost
+                print(f"Tokens: {tokens}")
+                print(f"Cost: {total_cost}")
             except Exception as e:
-                print(f"An Error occurred when running the agent: {e}")
+                print(f"An error occurred when running the agent: {e}")
 
+    if tokens is not None and total_cost is not None:
+        send_user_question(miksi_api_key, query, tokens, total_cost)

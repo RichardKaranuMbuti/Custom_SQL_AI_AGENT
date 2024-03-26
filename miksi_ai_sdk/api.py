@@ -14,7 +14,7 @@ class MiksiAPIHandler:
     def __init__(self,miksi_api_key):
         self.api_url = api_url
         self.miksi_api_key = miksi_api_key
-        self.main_url="http://127.0.0.1:8000"
+        self.main_url="https://miksiapi-miksi.pythonanywhere.com"
 
     def __str__(self):
         return "MiksiAPIHandler Instance"
@@ -82,12 +82,14 @@ class MiksiAPIHandler:
         else:
             return None
 
-'''
 
+'''
 # Example usage of the class
 import os
 miksi_api_key = os.getenv('miksi_api_key')
 api_handler = MiksiAPIHandler(miksi_api_key=miksi_api_key)
 status = api_handler.validate_miksi_api_key()
+data =api_handler.get_openai_data()
+print(f"openai data: {data}")
 print("API status", status)
 '''
