@@ -3,32 +3,32 @@ from Cython.Build import cythonize
 import os
 import glob
 
-# Directory containing your miksisdk package
+# Directory containing your package
 directory_path = os.path.dirname(os.path.abspath(__file__))
-miksisdk_path = os.path.join(directory_path, 'miksi_ai_sdk')
-
+package_path = os.path.join(directory_path, 'miksi_ai_sdk')
 
 # Function to read the list of requirements from requirements.txt
 def load_requirements(filename='requirements.txt'):
     with open(os.path.join(directory_path, filename), 'r') as file:
         return [line.strip() for line in file.readlines()]
 
-# Function to get all .pyx files from miksisdk directory
-def get_pyx_files(directory):
-    return [f for f in glob.glob(os.path.join(directory, '**/*.py'), recursive=True)]
+# Function to get all .py files for compilation
+def get_py_files(directory):
+    # Adjusted to get .py files for Cython compilation
+    return [f for f in glob.glob(os.path.join(directory, '**/*.py'), recursive=True) if not f.endswith('__init__.py')]
 
-# Get all .pyx files ------
-miksisdk_files = get_pyx_files(miksisdk_path)
+# Get all .py files ------
+package_files = get_py_files(package_path)
 
-# Create Cython extensions for each .pyx file
+# Create Cython extensions for each .py file
 extensions = [
     Extension(os.path.splitext(os.path.relpath(f, directory_path))[0].replace(os.path.sep, '.'), [f])
-    for f in miksisdk_files
+    for f in package_files
 ]
 
 setup(
     name="miksi-ai-sdk",
-    version="0.0.16",
+    version="0.0.17",
     author="RichardKaranuMbuti",
     author_email="officialforrichardk@gmail.com",
     description="Miksi-AI empowers your BI",
@@ -42,7 +42,4 @@ setup(
     classifiers=[
         # Add your classifiers here
     ],
-    # This line ensures that .py files are not included in your built distributions.
-    # Adjust if you have specific non-Cython .py modules you wish to include.
-    exclude_package_data={'': ['*.py','*.c', '*.pyx']},
 )
