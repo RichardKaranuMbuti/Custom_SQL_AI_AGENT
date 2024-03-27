@@ -23,7 +23,8 @@ from langchain.agents.agent import RunnableAgent
 from langchain_community.callbacks import get_openai_callback
 
 # Local imports
-from miksi_ai_sdk.sqltool import execute_query, get_database_schema
+from miksi_ai_sdk.sqltool import (execute_mysql_query, get_mysql_database_schema,get_pgdb_schema,execute_pgdb_query,
+                                  get_mssql_db_schema,execute_mssql_query)
 from miksi_ai_sdk.pythontool import *
 from miksi_ai_sdk.api import MiksiAPIHandler
 
@@ -60,12 +61,12 @@ def create_chat_openai_instance(miksi_api_key):
     
     # Create the ChatOpenAI instance
     llm = ChatOpenAI(openai_api_key=api_key, model=model_name, temperature=temperature)
-    print(f"Created ChatOpenAI instance with data: {data}")
+    print(f"LLM is Ready!")
     return llm
 
 
 
-def create_agent(miksi_api_key,media_path,instructions=None):
+def create_agent(miksi_api_key,media_path,engine,instructions=None):
     
     # Custom input validation models for the execute_sql_query tool
     class SQLQueryInput(BaseModel):
@@ -75,40 +76,84 @@ def create_agent(miksi_api_key,media_path,instructions=None):
     class PythonCodeInput(BaseModel):
         code: str = Field(description="Python code to be executed")
 
+    
+    # GET DB_SCHEMA TOOLS
 
-    get_database_schema_tool = StructuredTool.from_function(
-        func=get_database_schema,
+    # This tool gets mySQL db schema
+    get_mysql_database_schema_tool = StructuredTool.from_function(
+        func=get_mysql_database_schema,
         name="GetDatabaseSchema",
-        description="Used to get database schema. Use this tool when you want to know how the database and its tables are like.",
+        description="Used to get mySQL database schema. Use this tool to get MySQL db schema ",
+    )
+    
+    # This tool gets Postgres DB schema
+    get_pgdb_schema_tool = StructuredTool.from_function(
+        func=get_pgdb_schema,
+        name="GetPostgresDatabaseSchema",
+        description="Used to get postgres database schema. Use this tool when you want to know/get postgres database schema "
+    )
+    
+    # This tool connects gets Ms SQL db Schema
+    get_mssql_database_schema_tool = StructuredTool.from_function(
+        func=get_mssql_db_schema,
+        name="GetMsSQLDatabaseSchema",
+        description="Used to get MsSQL database schema. Use this tool to get MsSQL db schema ",
     )
 
 
-    execute_sql_query_tool = StructuredTool.from_function(
-        func=execute_query,
+    # ESTABLISH CONNECTION TO DB TOOLS
+    
+    # Tool to connect to mySQL and execute SQL code
+    execute_mysql_query_tool = StructuredTool.from_function(
+        func=execute_mysql_query,
         name="ExecuteSQLQuery",
-        description="Takes in a correct SQL query and executes it to give results.",
+        description="Takes in a correct mySQL query and executes it to give results.",
         args_schema=SQLQueryInput,
     )
 
+    # Tool to connect to Postgres and execute SQL code
+    execute_postgresdb_query_tool = StructuredTool.from_function(
+        func=execute_pgdb_query,
+        name="ExecutePostgresSQLQuery",
+        description="Takes in a correct PostgreSQL query and executes it to give results.",
+        args_schema=SQLQueryInput,
+    )
+
+    # Tool to connect to Postgres and execute SQL code
+    execute_mssqldb_query_tool = StructuredTool.from_function(
+        func=execute_mssql_query,
+        name="ExecutePostgresSQLQuery",
+        description="Takes in a correct PostgreSQL query and executes it to give results.",
+        args_schema=SQLQueryInput,
+    )
+    
+
+    # OTHER NON SQL TOOLS
+    # Tool to execute python code
     execute_python_code_tool = StructuredTool.from_function(
-        func=execute_code,
+        func=execute_code,  # imported from python tool
         name="ExecutePythonCode",
         description="Takes in  correct python code and executes it to give results.",
         args_schema=PythonCodeInput,
     )
 
 
-    tools = [get_database_schema_tool, execute_sql_query_tool,execute_python_code_tool]
+    tools = [get_mysql_database_schema_tool,get_pgdb_schema_tool, get_mssql_database_schema_tool,
+             execute_mysql_query_tool,execute_python_code_tool,execute_mssqldb_query_tool
+             ,execute_postgresdb_query_tool ]
 
 
-    AZURE_OPENAI_ENDPOINT= os.getenv("azure_endpoint")
-    AZURE_OPENAI_API_KEY= os.getenv("AZURE_OPENAI_KEY")
-    OPENAI_API_VERSION = os.getenv("api_version")
+    
 
     # Load the language model
     #llm = ChatOpenAI(model="gpt-4-0125-preview", temperature=1.0)
     llm = create_chat_openai_instance(miksi_api_key)
+
     '''
+    AZURE_OPENAI_ENDPOINT= os.getenv("azure_endpoint")
+    AZURE_OPENAI_API_KEY= os.getenv("AZURE_OPENAI_KEY")
+    OPENAI_API_VERSION = os.getenv("api_version")
+
     llm = AzureChatOpenAI(deployment_name="miksi-gpt-35",
                       azure_endpoint="https://miksi.openai.azure.com/",# AZURE_OPENAI_ENDPOINT,
                       api_key= AZURE_OPENAI_API_KEY,
@@ -121,7 +166,9 @@ def create_agent(miksi_api_key,media_path,instructions=None):
     MEMORY_KEY = "chat_history"
     prompt_template = ChatPromptTemplate.from_messages(
         [
-            ("system", f"""You are a very powerful and honest assistant with specific tools.You have get_database_schema_tool that 
+            ("system", f"""You are a very powerful and honest assistant with specific tools.You work with SQL databases
+             . You are currently working with this engine {engine}. You have  specific get_database_schema_tool for this 
+             specific engine, that 
             helps you see the db schema,execute_sql_query_tool that will execute correct sql code provided to it
             to give results,execute_python_code_tool that you can use to generate graphs/charts/tables by providing 
             correct python code to it.If an SQL query returns data store it in data structures like arrays and list 
@@ -213,34 +260,8 @@ def create_agent(miksi_api_key,media_path,instructions=None):
     else:
         print("Problem creating the agent!Please check your API key")
         
-    
 
-
-#https://miksiapi-miksi.pythonanywhere.com' / http://127.0.0.1:8000
-
-import httpx
-
-def send_user_question(miksi_api_key, query, tokens, total_cost):
-    main_url = 'https://miksiapi-miksi.pythonanywhere.com'  # Adjust as necessary
-    endpoint = f"{main_url}/miksi/user_questions/"  # Updated endpoint path
-    # Updated data keys to match your Django endpoint's expected input
-    data = {'miksi_api_key': miksi_api_key, 'query': query, 'tokens': tokens, 'total_cost': total_cost}
-    headers = {'Content-Type': 'application/json'}
-
-    with httpx.Client() as client:
-        try:
-            response = client.post(endpoint, json=data, headers=headers)
-            # Checking the response status code for success or failure
-            if response.status_code == 201:
-                print("Success at:Miksi1!.")
-                return response.json()  # or process response as needed
-            else:
-                print(f"Failed at:Miksi0! : ") #paste this to see actual error({response.status_code}, Error: {response.text})
-                return None
-        except httpx.HTTPError as e:
-            print(f"An error occurred during the API request: {e}")
-            return None
-
+from miksi_ai_sdk.api import send_user_question
 
 
 def run_agent(agent, miksi_api_key, query):
@@ -254,13 +275,11 @@ def run_agent(agent, miksi_api_key, query):
             try:
                 result1 = agent.invoke({"input": input1, "chat_history": chat_history})
                 chat_history.extend([HumanMessage(content=input1), AIMessage(content=result1["output"])])
-                print("answer: ", result1["output"])
                 tokens = cb.total_tokens
-                total_cost = cb.total_cost
-                print(f"Tokens: {tokens}")
-                print(f"Cost: {total_cost}")
+                total_cost = cb.total_cost 
             except Exception as e:
                 print(f"An error occurred when running the agent: {e}")
 
     if tokens is not None and total_cost is not None:
         send_user_question(miksi_api_key, query, tokens, total_cost)
+    return result1["output"]

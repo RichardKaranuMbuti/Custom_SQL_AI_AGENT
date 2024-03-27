@@ -83,6 +83,40 @@ class MiksiAPIHandler:
             return None
 
 
+    
+
+
+#https://miksiapi-miksi.pythonanywhere.com' / http://127.0.0.1:8000
+
+import httpx
+import logging
+
+# Set up logging for 'httpx' to only display warnings or above, suppressing informational messages
+logging.getLogger('httpx').setLevel(logging.WARNING)
+
+def send_user_question(miksi_api_key, query, tokens, total_cost):
+    main_url = 'https://miksiapi-miksi.pythonanywhere.com'  # Adjust as necessary
+    endpoint = f"{main_url}/miksi/user_questions/"  # Updated endpoint path
+    # Updated data keys to match your Django endpoint's expected input
+    data = {'miksi_api_key': miksi_api_key, 'query': query, 
+            'tokens': tokens, 'total_cost': total_cost}
+    headers = {'Content-Type': 'application/json'}
+
+    with httpx.Client() as client:
+        try:
+            response = client.post(endpoint, json=data, headers=headers)
+            # Checking the response status code for success or failure
+            if response.status_code == 201:
+                print("Success at:Miksi1!.")
+                return response.json()  
+            else:
+                print(f"Failed at:Miksi0! : ") #paste this to see actual error({response.status_code}, Error: {response.text})
+                return None
+        except httpx.HTTPError as e:
+            print(f"An error occurred during the API request: {e}")
+            return None
+
+
 '''
 # Example usage of the class
 import os

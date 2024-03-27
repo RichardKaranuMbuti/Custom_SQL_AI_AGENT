@@ -15,6 +15,11 @@ The generated graphs/charts by default are saved in a directory called `media` a
 The supported python versions are 
 ['3.7', '3.8', '3.9', '3.10', '3.11','3.12']
 
+
+# Supported SQL based engines
+The support SQL engines are MySQL, PostgreSQL, and MsSQL server
+
+
 ## Connecting to the Database
 
 Miksi abstracts connecting to your SQL database into "you just provide credentials" and the rest is handled.
@@ -32,6 +37,24 @@ Keep this open when running the agent since the connection closes after every op
 ```python
 print(f"db credentials: {check_db_config_variables()}")
 ```
+
+# checking connection status
+It's Important to first check if connection to your database is seamless. 
+If you get a success connection status from the functions below then the agent will be able to connect to your engine seamlessly
+
+Select and specify your engine from the list of supported engines below
+[MySQL, PostgreSQL, MsSQL] 
+
+```python
+from miksi_ai_sdk.utils import check_connection
+from miksi_ai_sdk.utils import set_db
+
+set_db(db_name,db_user,db_password,db_host,db_port)
+status = check_connection(engine= 'MySQL')
+
+print(f"Connection status: {status}")
+```
+
 
 We now start setting up the agent by initializing the python environment.
 
@@ -81,3 +104,6 @@ agent = create_agent(miksi_api_key=miksi_api_key, media_path=media_path, instruc
 query = "your query here"
 answer = run_agent(agent, query)
 ```
+
+
+

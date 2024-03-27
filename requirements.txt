@@ -5,6 +5,7 @@ anyio==4.3.0
 attrs==23.2.0
 certifi==2024.2.2
 charset-normalizer==3.3.2
+Cython==3.0.9
 dataclasses-json==0.6.4
 distro==1.9.0
 frozenlist==1.4.1
@@ -28,9 +29,11 @@ numpy==1.26.4
 openai==1.13.3
 orjson==3.9.15
 packaging==23.2
+psycopg2-binary==2.9.9
 pydantic==2.6.3
 pydantic_core==2.16.3
 PyMySQL==1.1.0
+pyodbc==5.1.0
 python-dotenv==1.0.1
 PyYAML==6.0.1
 regex==2023.12.25

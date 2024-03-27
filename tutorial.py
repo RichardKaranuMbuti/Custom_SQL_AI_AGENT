@@ -3,7 +3,6 @@ import openai
 import os
 
 from miksi_ai_sdk.sqltool import set_database_config,check_db_config_variables
-
 from miksi_ai_sdk.master import initialize_env,install_defaults
 from miksi_ai_sdk.master import safe_install_modules
 
@@ -19,7 +18,7 @@ print(db_name)
 db_user = os.getenv('db_user')
 db_password = os.getenv('db_password')
 db_host = os.getenv('db_host')
-db_port = 3306
+db_port = 5432
 
 env_path = 'venvs'
 media_path = 'media/images'
@@ -39,13 +38,28 @@ initialize_env(env_path)
 #safe_install_modules(['matplotlib']) if you want to install other modules
 
 
+# checking connection status
+
+from miksi_ai_sdk.utils import check_connection
+from miksi_ai_sdk.utils import set_db
+
+set_db(db_name,db_user,db_password,db_host,db_port)
+status = check_connection(engine= 'PostgreSQL')
+
+print(f"Connection status: {status}")
 
 # Creating the agent
 instructions = ''
-agent = create_agent(miksi_api_key=miksi_api_key,media_path= media_path, instructions=instructions)
+engine = 'PostgreSQL'
+agent = create_agent(miksi_api_key=miksi_api_key,media_path= media_path,
+                     engine=engine, instructions=instructions)
 
+from miksi_ai_sdk.utils import always_clean_json_formatter
 
 # Running the agent
-query = "which top 10 cities did we sell more"
+query = "how many students do we have?"
 answer = run_agent(agent,miksi_api_key, query)
+print(f"answer: {answer}")
+
+
 

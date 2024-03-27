@@ -1,5 +1,4 @@
 # Local imports
-from miksi_ai_sdk.sqltool import execute_query, get_database_schema
 from miksi_ai_sdk.pythontool import *
 
 
