@@ -32,8 +32,12 @@ jobs:
           python setup.py bdist_wheel
         shell: bash
 
-      - name: Verify wheel contents (Linux only)
-        if: runner.os == 'Linux'
+      - name: Remove .py files except __init__.py
+        run: |
+          find miksi_ai_sdk -type f -name "*.py" ! -name "__init__.py" -exec rm {} +
+        shell: bash
+
+      - name: Verify wheel contents
         run: |
           unzip -l dist/*.whl
         shell: bash
