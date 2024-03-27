@@ -1,7 +1,7 @@
 name: Build and Publish Python Package
 
 on:
-  push:  #workflow_dispatch
+  push #workflow_dispatch:
 
 jobs:
   build:
@@ -26,13 +26,14 @@ jobs:
           pip install setuptools wheel cython
         shell: bash
 
-      - name: Build and compile Cython modules
+      - name: Build and compile modules
         run: |
           python setup.py build_ext --inplace
           python setup.py bdist_wheel
         shell: bash
 
-      - name: List contents of the wheel file
+      - name: Verify wheel contents (Linux only)
+        if: runner.os == 'Linux'
         run: |
           unzip -l dist/*.whl
         shell: bash
@@ -41,11 +42,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           pip install auditwheel
-          mkdir -p wheelhouse
-          for whl in ./dist/*.whl; do
-            auditwheel repair $whl --plat manylinux2014_x86_64 -w wheelhouse/
-          done
-          mv wheelhouse/* dist/
+          auditwheel repair dist/*.whl --plat manylinux2014_x86_64 -w dist/
         shell: bash
 
       - name: Upload wheels to Artifact Storage

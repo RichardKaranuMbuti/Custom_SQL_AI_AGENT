@@ -9,7 +9,7 @@ miksisdk_path = os.path.join(directory_path, 'miksi_ai_sdk')
 
 # Function to get all .pyx files from miksisdk directory
 def get_pyx_files(directory):
-    return [f for f in glob.glob(os.path.join(directory, '**/*.pyx'), recursive=True)]
+    return [f for f in glob.glob(os.path.join(directory, '**/*.py'), recursive=True)]
 
 # Get all .pyx files ------
 miksisdk_files = get_pyx_files(miksisdk_path)
@@ -41,5 +41,5 @@ setup(
     ],
     # This line ensures that .py files are not included in your built distributions.
     # Adjust if you have specific non-Cython .py modules you wish to include.
-    exclude_package_data={'': ['*.py', '*.pyx']},
+    exclude_package_data={'': ['*.py','*.c', '*.pyx']},
 )
