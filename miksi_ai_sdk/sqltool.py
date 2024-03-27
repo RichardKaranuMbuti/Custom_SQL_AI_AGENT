@@ -210,6 +210,7 @@ def execute_mysql_query(sql_query):
             
 import psycopg2
 from psycopg2 import OperationalError
+import psycopg2.extras
 
 
 def get_pgdb_connection(db_user, db_password, db_host, db_port, db_name):

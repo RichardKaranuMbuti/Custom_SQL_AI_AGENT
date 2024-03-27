@@ -1,7 +1,7 @@
 name: Build and Publish Python Package
 
 on:
-  workflow_dispatch:
+  push:  #workflow_dispatch
 
 jobs:
   build:
@@ -11,7 +11,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: ['3.7', '3.8', '3.9', '3.10', '3.11','3.12']
+        python-version: ['3.7', '3.8', '3.9', '3.10', '3.11', '3.12']
     steps:
       - uses: actions/checkout@v3
 
@@ -26,13 +26,9 @@ jobs:
           pip install setuptools wheel cython
         shell: bash
 
-      - name: Compile Cython modules
+      - name: Build and compile Cython modules
         run: |
           python setup.py build_ext --inplace
-        shell: bash
-
-      - name: Build wheels
-        run: |
           python setup.py bdist_wheel
         shell: bash
 
@@ -49,25 +45,7 @@ jobs:
           for whl in ./dist/*.whl; do
             auditwheel repair $whl --plat manylinux2014_x86_64 -w wheelhouse/
           done
-        shell: bash
-
-      - name: Prepare wheels for upload
-        if: runner.os == 'Linux'
-        run: |
           mv wheelhouse/* dist/
-        shell: bash
-
-      - name: Manually Tag Wheels for Linux
-        if: runner.os != 'Windows'
-        run: |
-          cd dist
-          for whl in *linux_x86_64.whl; do
-            if [[ -f "$whl" ]]; then
-              new_whl="${whl/linux_x86_64/manylinux2014_x86_64}"
-              mv "$whl" "$new_whl"
-              echo "Renamed $whl to $new_whl"
-            fi
-          done
         shell: bash
 
       - name: Upload wheels to Artifact Storage

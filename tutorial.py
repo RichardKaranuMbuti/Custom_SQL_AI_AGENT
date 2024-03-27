@@ -57,7 +57,7 @@ agent = create_agent(miksi_api_key=miksi_api_key,media_path= media_path,
 from miksi_ai_sdk.utils import always_clean_json_formatter
 
 # Running the agent
-query = "how many students do we have?"
+query = "how many students are in grade 9, also show a graph of students against grades"
 answer = run_agent(agent,miksi_api_key, query)
 print(f"answer: {answer}")
 
