@@ -7,6 +7,12 @@ import glob
 directory_path = os.path.dirname(os.path.abspath(__file__))
 miksisdk_path = os.path.join(directory_path, 'miksi_ai_sdk')
 
+
+# Function to read the list of requirements from requirements.txt
+def load_requirements(filename='requirements.txt'):
+    with open(os.path.join(directory_path, filename), 'r') as file:
+        return [line.strip() for line in file.readlines()]
+
 # Function to get all .pyx files from miksisdk directory
 def get_pyx_files(directory):
     return [f for f in glob.glob(os.path.join(directory, '**/*.py'), recursive=True)]
@@ -22,7 +28,7 @@ extensions = [
 
 setup(
     name="miksi-ai-sdk",
-    version="0.0.14",
+    version="0.0.15",
     author="RichardKaranuMbuti",
     author_email="officialforrichardk@gmail.com",
     description="Miksi-AI empowers your BI",
@@ -31,10 +37,7 @@ setup(
     url="https://github.com/Miksi-io/Custom-Agent",
     packages=find_packages(include=["miksi_ai_sdk", "miksi_ai_sdk.*"]),
     ext_modules=cythonize(extensions, compiler_directives={'language_level': "3"}),
-    install_requires=[
-        "langchain", "sqlalchemy", "pymysql",
-        "langchain_openai", "openai"
-    ],
+    install_requires=load_requirements(),
     python_requires='>=3.6',
     classifiers=[
         # Add your classifiers here
