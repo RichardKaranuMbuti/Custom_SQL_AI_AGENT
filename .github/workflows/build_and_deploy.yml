@@ -37,16 +37,6 @@ jobs:
           unzip -l dist/*.whl
         shell: bash
 
-      - name: Repair wheels (Linux only)
-        if: runner.os == 'Linux'
-        run: |
-          pip install auditwheel
-          for whl in dist/*.whl; do
-            auditwheel repair "$whl" --plat manylinux2014_x86_64 -w dist/
-            rm "$whl"  # Remove the original wheel that's not manylinux compliant
-          done
-        shell: bash
-
       - name: Upload wheels to Artifact Storage
         uses: actions/upload-artifact@v3
         with:

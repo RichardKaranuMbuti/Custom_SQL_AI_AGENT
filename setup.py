@@ -46,6 +46,12 @@ setup(
     ],
 )
 
+# Print the compiled extension files
+print("Compiled extension files:")
+for ext in setup.ext_modules:
+    for file in ext.sources:
+        print(f"- {file.replace('.c', '.so')}")
+
 # Remove .py files after installation
 installed_path = os.path.join(os.path.dirname(__file__), 'miksi_ai_sdk')
 for root, dirs, files in os.walk(installed_path):
