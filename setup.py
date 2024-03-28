@@ -2,7 +2,6 @@ from setuptools import setup, find_packages, Extension
 from Cython.Build import cythonize
 import os
 import glob
-import shutil
 
 # Directory containing your package
 directory_path = os.path.dirname(os.path.abspath(__file__))
@@ -23,11 +22,10 @@ package_files = get_py_files(package_path)
 
 # Create Cython extensions for each .py file
 extensions = [
-    Extension(os.path.splitext(os.path.relpath(f, directory_path))[0].replace(os.path.sep, '.'), [f])
+    Extension(os.path.splitext(os.path.relpath(f, package_path))[0].replace(os.path.sep, '.'), [f])
     for f in package_files
 ]
 
-# Build and install the package
 setup(
     name="miksi-ai-sdk",
     version="0.0.17",
@@ -45,16 +43,3 @@ setup(
         # Add your classifiers here
     ],
 )
-
-# Print the compiled extension files
-print("Compiled extension files:")
-for ext in setup.ext_modules:
-    for file in ext.sources:
-        print(f"- {file.replace('.c', '.so')}")
-
-# Remove .py files after installation
-installed_path = os.path.join(os.path.dirname(__file__), 'miksi_ai_sdk')
-for root, dirs, files in os.walk(installed_path):
-    for file in files:
-        if file.endswith('.py') and file != '__init__.py':
-            os.remove(os.path.join(root, file))
