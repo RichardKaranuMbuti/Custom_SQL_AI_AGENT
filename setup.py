@@ -12,18 +12,18 @@ def load_requirements(filename='requirements.txt'):
     with open(os.path.join(directory_path, filename), 'r') as file:
         return [line.strip() for line in file.readlines()]
 
-# Function to get all .py files for compilation, excluding __init__.py
-def get_py_files(directory):
-    return [f for f in glob.glob(os.path.join(directory, '**/*.py'), recursive=True) if not f.endswith('__init__.py')]
+# Function to get all .py files for compilation
+def find_py_files(directory):
+    py_files = []
+    for root, dirs, files in os.walk(directory):
+        for file in files:
+            if file.endswith('.py') and file != '__init__.py':
+                module_name = os.path.relpath(os.path.join(root, file), directory).replace(os.path.sep, '.')[:-3]
+                py_files.append((module_name, os.path.join(root, file)))
+    return py_files
 
-# Compile and get .py files
-package_files = get_py_files(package_path)
-
-# Create Cython extensions for each .py file, excluding __init__.py
-extensions = [
-    Extension(os.path.splitext(os.path.relpath(f, package_path))[0].replace(os.path.sep, '.'), [f])
-    for f in package_files
-]
+# Create Cython extensions for each .py file
+extensions = [Extension(f"miksi_ai_sdk.{module}", [f]) for module, f in find_py_files(package_path)]
 
 setup(
     name="miksi-ai-sdk",
@@ -34,20 +34,11 @@ setup(
     long_description=open(os.path.join(directory_path, 'docs.md')).read(),
     long_description_content_type='text/markdown',
     url="https://github.com/Miksi-io/Custom-Agent",
-    packages=find_packages(include=["miksi_ai_sdk", "miksi_ai_sdk."]),
+    packages=find_packages(include=["miksi_ai_sdk", "miksi_ai_sdk.*"]),
     ext_modules=cythonize(extensions, compiler_directives={'language_level': "3"}),
-    # Ensure only compiled .so files and init.py are included in the package
-    package_data={
-    '': ['.so', '.pyd'], # Include any compiled files across the package
-    'miksi_ai_sdk': ['init.py'], # Explicitly include init.py if needed
-    },
-    exclude_package_data={
-    '': ['.py', '*.pyx'], # Exclude all .py and .pyx source files
-    },
     install_requires=load_requirements(),
     python_requires='>=3.6',
     classifiers=[
-    # Add your classifiers here
+        # Add your classifiers here
     ],
 )
-   
