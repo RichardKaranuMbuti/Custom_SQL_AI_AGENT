@@ -40,11 +40,11 @@ jobs:
         if: startsWith(matrix.os, 'ubuntu')
         run: |
           mkdir -p dist_repaired
-          docker run --rm -v `pwd`:/io quay.io/pypa/manylinux2010_x86_64 bash -c "\
+          docker run --rm -v `pwd`:/io quay.io/pypa/manylinux2014_x86_64 bash -c "\
             shopt -s nullglob; \
             for whl in /io/dist/*linux_x86_64.whl; do \
               echo 'Repairing wheel: ' \$whl; \
-              auditwheel repair \$whl --plat manylinux2010_x86_64 -w /io/dist_repaired/; \
+              auditwheel repair \$whl --plat manylinux2014_x86_64 -w /io/dist_repaired/; \
               if [ \$? -ne 0 ]; then \
                 echo 'Error repairing wheel: ' \$whl; \
                 exit 1; \
@@ -52,7 +52,6 @@ jobs:
             done; \
             echo 'Copying repaired wheels'; \
             cp /io/dist_repaired/* /io/dist/"
-          echo "Repaired wheels moved to dist/"
         shell: bash
 
       - name: Verify wheel contents
