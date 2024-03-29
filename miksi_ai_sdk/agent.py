@@ -263,12 +263,12 @@ def create_agent(miksi_api_key,media_path,engine,instructions=None):
 
 from miksi_ai_sdk.api import send_user_question
 
-
 def run_agent(agent, miksi_api_key, query):
     chat_history = []
     input1 = query
     tokens = None
     total_cost = None
+    result1 = None  
 
     if agent is not None:
         with get_openai_callback() as cb:
@@ -279,7 +279,15 @@ def run_agent(agent, miksi_api_key, query):
                 total_cost = cb.total_cost 
             except Exception as e:
                 print(f"An error occurred when running the agent: {e}")
+                result1 = {"output": "An error occurred"}  # Provide a fallback value
 
+    # Check if tokens and total_cost are not None outside the if-else block to avoid repetition
     if tokens is not None and total_cost is not None:
         send_user_question(miksi_api_key, query, tokens, total_cost)
-    return result1["output"]
+
+    # Ensure that result1 and its "output" key exist before trying to return its value
+    if result1 and "output" in result1:
+        return result1["output"]
+    else:
+        # Handle the case where result1 doesn't have an "output" key or is None
+        return "Error: No output generated from the agent."
