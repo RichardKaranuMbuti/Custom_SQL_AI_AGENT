@@ -1,3 +1,7 @@
+name: Build and Publish Python Package
+
+on:
+  push: # Optionally add other triggers
 jobs:
   build:
     name: Build wheels on ${{ matrix.os }} for Python ${{ matrix.python-version }}
