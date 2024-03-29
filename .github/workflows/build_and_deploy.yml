@@ -1,8 +1,3 @@
-name: Build and Publish Python Package
-
-on:
-  push: # Optionally add other triggers
-
 jobs:
   build:
     name: Build wheels on ${{ matrix.os }} for Python ${{ matrix.python-version }}
@@ -35,13 +30,12 @@ jobs:
       - name: Repair Wheels (Linux only)
         if: startsWith(matrix.os, 'ubuntu')
         run: |
+          mkdir -p dist_repaired
           docker run --rm -v `pwd`:/io quay.io/pypa/manylinux2010_x86_64 bash -c "\
-            cd /io/dist && \
-            for whl in *linux_x86_64.whl; do \
-              auditwheel repair $whl --plat manylinux2010_x86_64 -w /io/dist_repaired/ && \
-              rm $whl; \
-            done && \
-            if [ -d /io/dist_repaired ]; then mv /io/dist_repaired/* /io/dist/; fi"
+            for whl in /io/dist/*linux_x86_64.whl; do \
+              auditwheel repair $whl --plat manylinux2010_x86_64 -w /io/dist_repaired/; \
+            done"
+          mv dist_repaired/* dist/
         shell: bash
 
       - name: Verify wheel contents
