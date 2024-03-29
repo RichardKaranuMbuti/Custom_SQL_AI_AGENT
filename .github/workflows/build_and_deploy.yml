@@ -35,21 +35,14 @@ jobs:
       - name: Repair Wheels (Linux only)
         if: startsWith(matrix.os, 'ubuntu')
         run: |
-          docker run --rm -v ${{ github.workspace }}/dist:/dist quay.io/pypa/manylinux2010_x86_64 bash -c "\
-            for whl in /dist/*.whl; do \
-              auditwheel repair $whl -w /dist/; \
-            done"
-        
-      - name: Verify wheel contents
-        run: |
-          unzip -l dist/*.whl
+          docker run --rm -v `pwd`:/io quay.io/pypa/manylinux2010_x86_64 bash -c "\
+            cd /io/dist && \
+            for whl in *linux_x86_64.whl; do \
+              auditwheel repair $whl --plat manylinux2010_x86_64 -w /io/dist_repaired/ && \
+              rm $whl; \
+            done && \
+            if [ -d /io/dist_repaired ]; then mv /io/dist_repaired/* /io/dist/; fi"
         shell: bash
-
-      - uses: actions/upload-artifact@v3
-        with:
-          name: wheels-${{ matrix.os }}-${{ matrix.python-version }}
-          path:
-
 
       - name: Verify wheel contents
         run: |
