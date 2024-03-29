@@ -2,6 +2,10 @@ name: Build and Publish Python Package
 
 on:
   push:
+    branches:
+      - main
+    tags:
+      - 'v*'
 
 jobs:
   build:
@@ -32,13 +36,31 @@ jobs:
           python setup.py bdist_wheel
         shell: bash
 
+      - name: Repair Wheels (Linux only)
+        if: startsWith(matrix.os, 'ubuntu')
+        run: |
+          mkdir -p dist_repaired
+          docker run --rm -v `pwd`:/io quay.io/pypa/manylinux2010_x86_64 bash -c "\
+            shopt -s nullglob; \
+            for whl in /io/dist/*linux_x86_64.whl; do \
+              echo 'Repairing wheel: ' \$whl; \
+              auditwheel repair \$whl --plat manylinux2010_x86_64 -w /io/dist_repaired/; \
+              if [ \$? -ne 0 ]; then \
+                echo 'Error repairing wheel: ' \$whl; \
+                exit 1; \
+              fi; \
+            done; \
+            echo 'Copying repaired wheels'; \
+            cp /io/dist_repaired/* /io/dist/"
+          echo "Repaired wheels moved to dist/"
+        shell: bash
+
       - name: Verify wheel contents
         run: |
           unzip -l dist/*.whl
         shell: bash
 
-      - name: Upload wheels to Artifact Storage
-        uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v3
         with:
           name: wheels-${{ matrix.os }}-${{ matrix.python-version }}
           path: ./dist/*.whl
@@ -65,20 +87,14 @@ jobs:
           find ./artifacts -name '*.zip' -exec unzip -o {} -d ./ \;
           find . -name '*.whl' -exec mv {} dist/ \;
 
-      - name: Install twine and auditwheel
+      - name: Install twine
         run: |
           python -m pip install --upgrade pip
-          pip install twine auditwheel
+          pip install twine
 
-      - name: Repair Linux wheels with auditwheel
-        run: |
-          for whl in dist/*-linux*.whl; do
-            auditwheel repair "$whl" --plat manylinux_2_28_x86_64 -w dist/
-          done
-
-      - name: Publish wheels to PyPI
+      - name: Publish to PyPI with Verbose Output
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
         run: |
-          twine upload --verbose dist/*
+          twine upload --verbose dist/*.whl
