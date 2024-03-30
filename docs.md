@@ -42,7 +42,7 @@ print(f"db credentials: {check_db_config_variables()}")
 It's Important to first check if connection to your database is seamless. 
 If you get a success connection status from the functions below then the agent will be able to connect to your engine seamlessly
 
-Select and specify your engine from the list of supported engines below
+Select and specify your engine from the list of supported engines belows
 [MySQL, PostgreSQL, MsSQL] 
 
 ```python
@@ -101,6 +101,8 @@ agent = create_agent(miksi_api_key=miksi_api_key, media_path=media_path, instruc
 ## Running the Agent
 
 ```python
+from miksi_ai_sdk.agent import run_agent
+
 query = "your query here"
 answer = run_agent(agent, query)
 ```
