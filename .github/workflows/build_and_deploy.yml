@@ -20,17 +20,18 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Install build dependencies
+    - name: Upgrade pip and Install build dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install Cython wheel setuptools cibuildwheel==2.13.1
+        pip install Cython wheel setuptools
+    - name: Install cibuildwheel
+      run: pip install cibuildwheel==2.13.1
     - name: Build wheels
       run: |
         python -m cibuildwheel --output-dir wheelhouse
       env:
-        # Ensure CIBW_SKIP is properly configured to exclude unsupported configs
-        CIBW_PREPARE: "pip install Cython"
-        CIBW_BEFORE_BUILD: "python setup.py build_ext --inplace"
+        CIBW_BEFORE_BUILD: pip install Cython && python setup.py build_ext --inplace
+        CIBW_BUILD_VERBOSITY: 1  # Increase verbosity to diagnose issues
     - uses: actions/upload-artifact@v2
       with:
         path: ./wheelhouse/*.whl
