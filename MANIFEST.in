@@ -1,3 +1,0 @@
-recursive-include miksi_ai_sdk *.py
-recursive-exclude miksi_ai_sdk *.py
-include miksi_ai_sdk/__init__.py
