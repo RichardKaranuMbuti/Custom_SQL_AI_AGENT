@@ -1,0 +1,47 @@
+```bash
+git add .
+```
+
+If you prefer to add specific files, replace `.` with the paths to those files:
+
+```bash
+git add path/to/file1 path/to/file2
+```
+
+### Step 2: Commit Your Changes
+
+After adding your files, you need to commit these changes. Provide a meaningful commit message that describes what you have changed or added:
+
+```bash
+git commit -m "Your commit message"
+```
+
+Replace `"Your commit message"` with a brief description of your update.
+
+### Step 3: Tag Your Commit
+
+Once you've committed your changes, you can tag the commit with a version number. This tag should start with `v`, followed by the version number. For example, for version 1.2.3, the tag would be `v1.2.3`:
+
+```bash
+git tag v1.2.3
+```
+
+Feel free to replace `1.2.3` with your actual version number.
+
+### Step 4: Push Your Changes and Tags to GitHub
+
+Finally, you need to push your committed changes and the tag to GitHub. First, push the commits:
+
+```bash
+git push origin main
+```
+
+Replace `main` with the name of your branch if it's different (e.g., `master` or your feature branch).
+
+Then, push the tags:
+
+```bash
+git push origin v1.2.3
+```
+
+Again, replace `v1.2.3` with your specific tag.

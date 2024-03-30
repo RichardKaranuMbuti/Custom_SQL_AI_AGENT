@@ -31,11 +31,10 @@ jobs:
         python -m cibuildwheel --output-dir wheelhouse
       env:
         CIBW_BEFORE_BUILD: pip install Cython && python setup.py build_ext --inplace
-        CIBW_BUILD_VERBOSITY: 1  # Increase verbosity to diagnose issues
+        CIBW_BUILD_VERBOSITY: 1
     - uses: actions/upload-artifact@v2
       with:
         path: ./wheelhouse/*.whl
-  
   upload-to-pypi:
     needs: build-and-upload
     runs-on: ubuntu-latest
