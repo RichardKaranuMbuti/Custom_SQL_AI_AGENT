@@ -32,5 +32,6 @@ setup(
     packages=find_packages(),
     install_requires=load_requirements(),
     python_requires='>=3.7, <4',
-    ext_modules=cythonize(extensions, compiler_directives={'language_level' : "3"}),
+    compiled_extensions = cythonize(extensions, language_level="3")
+
 )
