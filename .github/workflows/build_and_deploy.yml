@@ -23,7 +23,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install cython wheel setuptools cibuildwheel==1.15.0
+        pip install cython wheel setuptools cibuildwheel==2.16.4
     - name: Build wheels
       run: |
         python -m cibuildwheel --output-dir wheelhouse
