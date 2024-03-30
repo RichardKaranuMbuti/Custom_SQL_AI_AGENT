@@ -47,9 +47,10 @@ git push origin v1.2.3
 Again, replace `v1.2.3` with your specific tag.
 
 
-For workflow dispatch
+For workflow dispatch use the below instructions
 
 git commit -m "Your commit message"
 git tag -a v1.0.0 -m "Release version 1.0.0"
+git push origin v1.0.0 # push a newly created tag
 git push origin main --tags  # push and commit tags together
- 
+

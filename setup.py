@@ -20,7 +20,7 @@ extensions = cythonize(find_cython_extensions(package_name), compiler_directives
 
 setup(
     name="miksi-ai-sdk",
-    version="0.0.19",
+    version="0.0.21",
     author="RichardKaranuMbuti",
     author_email="officialforrichardk@gmail.com",
     description="Miksi-AI empowers your BI",
