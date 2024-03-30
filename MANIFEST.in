@@ -1,0 +1,11 @@
+recursive-exclude miksi_ai_sdk *.py
+recursive-exclude miksi_ai_sdk *.pyx
+recursive-exclude miksi_ai_sdk *.c
+recursive-exclude miksi_ai_sdk *.h
+
+
+
+include README.md
+include requirements.txt
+
+

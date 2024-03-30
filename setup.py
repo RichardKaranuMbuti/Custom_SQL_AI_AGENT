@@ -1,23 +1,22 @@
+
 from setuptools import setup, find_packages, Extension
 from Cython.Build import cythonize
 import os
 
+package_name = 'miksi_ai_sdk'
+
 def find_cython_extensions(package_dir):
     extensions = []
-    for root, dirs, files in os.walk(package_dir):
+    for root, _, files in os.walk(package_dir):
         for file in files:
-            if file.endswith(".py"):
-                # Generating a full path to the py file
+            if file.endswith(".pyx"):
                 full_path = os.path.join(root, file)
-                # Removing the .py extension and replacing os separators
-                module_path = full_path[:-3].replace(os.path.sep, '.')
+                module_path = full_path[:-4].replace(os.path.sep, '.')
                 ext = Extension(module_path, [full_path])
                 extensions.append(ext)
     return extensions
 
-# Dynamically find extensions
-package_dir = 'miksi_ai_sdk'
-extensions = find_cython_extensions(package_dir)
+extensions = cythonize(find_cython_extensions(package_name), compiler_directives={'language_level': "3"})
 
 setup(
     name="miksi-ai-sdk",
@@ -28,13 +27,15 @@ setup(
     long_description=open('docs.md').read(),
     long_description_content_type='text/markdown',
     url="https://github.com/Miksi-io/Custom-Agent",
-    # Avoiding find_packages() as we're manually specifying extension modules
-    packages=['miksi_ai_sdk'],  # Adjust according to your package structure
-    ext_modules=cythonize(extensions, language_level="3"),
+    packages=find_packages(exclude=["*.py"]),
+    ext_modules=extensions,
     python_requires='>=3.6',
     install_requires=open('requirements.txt').read().splitlines(),
     classifiers=[
         'Programming Language :: Python :: 3',
+        'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
     ],
+    zip_safe=False  # This is important for making sure the binary files are not zip archived
 )
+
