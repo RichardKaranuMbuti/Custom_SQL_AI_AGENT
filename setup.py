@@ -1,24 +1,21 @@
-
 from setuptools import setup, Extension, find_packages
 from Cython.Build import cythonize
 import os
-import subprocess
+from glob import glob
 
-directory_path = '.'
+directory_path = os.path.abspath(os.path.dirname(__file__))
 
 def load_requirements(filename='requirements.txt'):
     with open(os.path.join(directory_path, filename), 'r') as file:
         return [line.strip() for line in file.readlines()]
 
-# List of Cython extensions to be compiled
+# Grab all .py files to compile them into Cython extensions
+module_pyfiles = glob(os.path.join(directory_path, 'miksi_ai_sdk', '*.py'))
+
+# Create Extensions for Cython to compile
 extensions = [
-    Extension(name="miksi_ai_sdk.agent", sources=["miksi_ai_sdk/agent.py"]),
-    Extension(name="miksi_ai_sdk.api", sources=["miksi_ai_sdk/api.py"]),
-    Extension(name="miksi_ai_sdk.master", sources=["miksi_ai_sdk/master.py"]),
-    Extension(name="miksi_ai_sdk.pythontool", sources=["miksi_ai_sdk/pythontool.py"]),
-    Extension(name="miksi_ai_sdk.sqltool", sources=["miksi_ai_sdk/sqltool.py"]),
-    Extension(name="miksi_ai_sdk.utils", sources=["miksi_ai_sdk/utils.py"]),
-    # Add other extensions as needed
+    Extension(name=os.path.splitext(os.path.relpath(pyfile, directory_path))[0].replace(os.path.sep, '.'),
+              sources=[pyfile]) for pyfile in module_pyfiles
 ]
 
 # Use cythonize on the extensions
@@ -37,6 +34,4 @@ setup(
     install_requires=load_requirements(),
     python_requires='>=3.6',
     ext_modules=compiled_extensions,
-    # It is also common to include package data, which could include compiled .so files,
-    # if they were compiled separately and not as part of the build process.
 )
