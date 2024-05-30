@@ -3,7 +3,7 @@ from setuptools import setup, find_packages, Extension
 from Cython.Build import cythonize
 import os
 
-package_name = 'miksi_ai_sdk'
+package_name = 'panafrican_ai'
 
 def find_cython_extensions(package_dir):
     extensions = []
@@ -19,7 +19,7 @@ def find_cython_extensions(package_dir):
 extensions = cythonize(find_cython_extensions(package_name), compiler_directives={'language_level': "3"})
 
 setup(
-    name="miksi-ai-sdk",
+    name="panafrican_ai",
     version="0.0.21",
     author="RichardKaranuMbuti",
     author_email="officialforrichardk@gmail.com",
