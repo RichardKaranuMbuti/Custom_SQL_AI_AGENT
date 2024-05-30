@@ -2,12 +2,12 @@ from dotenv import load_dotenv
 import openai
 import os
 
-from miksi_ai_sdk.sqltool import set_database_config,check_db_config_variables
-from miksi_ai_sdk.master import initialize_env,install_defaults
-from miksi_ai_sdk.master import safe_install_modules
+from panafrican_ai.sqltool import set_database_config,check_db_config_variables
+from panafrican_ai.master import initialize_env,install_defaults
+from panafrican_ai.master import safe_install_modules
 
-from miksi_ai_sdk.agent import create_agent
-from miksi_ai_sdk.agent import run_agent
+from panafrican_ai.agent import create_agent
+from panafrican_ai.agent import run_agent
 
 
 load_dotenv()
@@ -40,24 +40,24 @@ initialize_env(env_path)
 
 # checking connection status
 
-from miksi_ai_sdk.utils import check_connection
-from miksi_ai_sdk.utils import set_db
+from panafrican_ai.utils import check_connection
+from panafrican_ai.utils import set_db
 
 set_db(db_name,db_user,db_password,db_host,db_port)
-status = check_connection(engine= 'PostgreSQL')
+status = check_connection(engine= 'MySQL')
 
 print(f"Connection status: {status}")
 
 # Creating the agent
 instructions = ''
-engine = 'PostgreSQL'
+engine = 'MySQL'
 agent = create_agent(miksi_api_key=miksi_api_key,media_path= media_path,
                      engine=engine, instructions=instructions)
 
-from miksi_ai_sdk.utils import always_clean_json_formatter
+from panafrican_ai.utils import always_clean_json_formatter
 
 # Running the agent
-query = "how many students are in grade 9, also show a graph of students against grades"
+query = "where did we sell more"
 answer = run_agent(agent,miksi_api_key, query)
 print(f"answer: {answer}")
 

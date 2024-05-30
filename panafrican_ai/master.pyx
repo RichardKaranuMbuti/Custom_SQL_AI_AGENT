@@ -1,5 +1,5 @@
 # Local imports
-from miksi_ai_sdk.pythontool import *
+from panafrican_ai.pythontool import *
 
 
 

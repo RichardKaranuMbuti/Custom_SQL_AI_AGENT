@@ -1,4 +1,4 @@
-from miksi_ai_sdk.sqltool import get_db_connection
+from panafrican_ai.sqltool import get_db_connection
 
 db_name = None
 db_user = None

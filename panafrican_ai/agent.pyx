@@ -23,10 +23,10 @@ from langchain.agents.agent import RunnableAgent
 from langchain_community.callbacks import get_openai_callback
 
 # Local imports
-from miksi_ai_sdk.sqltool import (execute_mysql_query, get_mysql_database_schema,get_pgdb_schema,execute_pgdb_query,
+from panafrican_ai.sqltool import (execute_mysql_query, get_mysql_database_schema,get_pgdb_schema,execute_pgdb_query,
                                   get_mssql_db_schema,execute_mssql_query)
-from miksi_ai_sdk.pythontool import *
-from miksi_ai_sdk.api import MiksiAPIHandler
+from panafrican_ai.pythontool import *
+from panafrican_ai.api import MiksiAPIHandler
 
 
 
@@ -261,7 +261,7 @@ def create_agent(miksi_api_key,media_path,engine,instructions=None):
         print("Problem creating the agent!Please check your API key")
         
 
-from miksi_ai_sdk.api import send_user_question
+from panafrican_ai.api import send_user_question
 
 def run_agent(agent, miksi_api_key, query):
     chat_history = []

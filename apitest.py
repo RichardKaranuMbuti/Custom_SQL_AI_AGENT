@@ -1,5 +1,5 @@
 import os
-from miksi_ai_sdk.api import MiksiAPIHandler
+from panafrican_ai.api import MiksiAPIHandler
 from dotenv import load_dotenv
 load_dotenv()
 
