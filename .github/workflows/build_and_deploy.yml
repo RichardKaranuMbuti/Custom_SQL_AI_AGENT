@@ -10,56 +10,51 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
         python-version: ['3.7', '3.8', '3.9', '3.10', '3.11', '3.12']
-        include:
-          # Exclude combinations that are not available
-          - os: ubuntu-latest
-            python-version: '3.7'
-            architecture: x64
-          - os: macos-latest
-            python-version: '3.8'
-            architecture: x64
-          - os: windows-latest
-            python-version: '3.9'
-            architecture: x64
     steps:
-      - uses: actions/checkout@v2
-      
+      - uses: actions/checkout@v3
+
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-          
+
       - name: Upgrade pip and Install build dependencies
         run: |
           python -m pip install --upgrade pip
           pip install Cython wheel setuptools
-          
+
       - name: Install cibuildwheel
         run: pip install cibuildwheel==2.13.1
-        
+
+      - name: Install PyArmor
+        run: pip install pyarmor
+
+      - name: Obfuscate Python code
+        run: pyarmor obfuscate --recursive --output miksi_ai_sdk_obfuscated miksi_ai_sdk
+
       - name: Build wheels
         run: |
           python -m cibuildwheel --output-dir wheelhouse
         env:
-          CIBW_BEFORE_BUILD: pip install Cython && cythonize -i miksi_ai_sdk/*.pyx
+          CIBW_BEFORE_BUILD: pip install Cython && python setup.py build_ext --inplace
           CIBW_BUILD_VERBOSITY: 1  # Increase verbosity to diagnose issues
-          
+
       - uses: actions/upload-artifact@v2
         with:
           path: ./wheelhouse/*.whl
-  
+
   upload-to-pypi:
     needs: build-and-upload
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'workflow_dispatch' }} && startsWith(github.ref, 'refs/tags/v')
     steps:
-      - uses: actions/checkout@v2
-      
+      - uses: actions/checkout@v3
+
       - name: Download all build artifacts
         uses: actions/download-artifact@v2
         with:
           path: wheelhouse  # Extracting directly in 'wheelhouse' directory
-      
+
       - name: Publish package to PyPI
         uses: pypa/gh-action-pypi-publish@v1.4.2
         with:
